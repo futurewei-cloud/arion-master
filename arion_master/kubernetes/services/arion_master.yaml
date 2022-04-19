@@ -13,12 +13,52 @@
 #     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: arion-account
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: arion-servcie
+  namespace: arion-servcie
+rules:
+  - apiGroups:
+      - ""
+    resources: # Here are resources you can access
+      - pods
+      - endpoints
+    verbs: # That is what you can do with them
+      - get
+      - list
+      - watch
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: arion-servcie
+roleRef:
+  kind: ClusterRole
+  name: arion-servcie
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: arion-account
+    namespace: default
+
+---
+
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: arion-configmap
 data:
   application.properties: |
-    kubernetesconfig = true
+    kubernetesconfig=true
+    namespace=hazelcast-arion
+    service.name=hazelcast-service
+    hazelcast.deployment = client
 
 ---
 apiVersion: apps/v1
@@ -37,7 +77,7 @@ spec:
       labels:
         app: arionmaster
     spec:
-      serviceAccountName: default
+      serviceAccountName: arion-account
       volumes:
         - name: arion-volume
           configMap:
@@ -48,7 +88,7 @@ spec:
       containers:
         - image: 363105346107.dkr.ecr.us-west-2.amazonaws.com/arionmaster:latest
           name: arion-master
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           command: ["java", "-jar", "/app/arionmaster-0.1.0-SNAPSHOT.jar", "--spring.config.location=/etc/arion/application.properties"]
           ports:
             - containerPort: 8080
@@ -71,9 +111,9 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 8080
+    - port: 9006
       targetPort: 8080
-      nodePort: 30008
+      nodePort: 30006
   selector:
     app: arionmaster
 
@@ -87,9 +127,10 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 9009
+    - port: 9007
       targetPort: 9090
-      nodePort: 30009
+      nodePort: 30007
   selector:
     app: arionmaster
+
 

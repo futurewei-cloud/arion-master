@@ -1,18 +1,21 @@
 package com.futurewei.arionmaster.config;
 
 import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.client.config.XmlClientConfigBuilder;
+import com.hazelcast.client.config.ClientUserCodeDeploymentConfig;
 import com.hazelcast.config.*;
 import com.hazelcast.kubernetes.HazelcastKubernetesDiscoveryStrategyFactory;
 import com.hazelcast.kubernetes.KubernetesProperties;
 import com.hazelcast.spi.properties.ClusterProperty;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 import java.util.Collections;
 
 @Configuration
+@ConditionalOnProperty(prefix = "hazelcast", name = "deployment", havingValue = "client")
 public class ApplicationClientConfig {
 
     @Value("${kubernetesconfig:false}")
@@ -24,28 +27,35 @@ public class ApplicationClientConfig {
     @Value("${service.name:default}")
     private String serviceName;
 
-    private static final String DEFAULT_FALSE = "false";
-    private static final String HAZELCAST_SERVICE_NAME = "service-hazelcast-server.default.svc.cluster.local";
-
     @Bean
+    @Scope("singleton")
     public ClientConfig clientConfig() throws Exception {
         ClientConfig clientConfig = new ClientConfig();
 
         if (kubernetesconfig) {
-            // Step (1) in docs above
+            /*
             HazelcastKubernetesDiscoveryStrategyFactory hazelcastKubernetesDiscoveryStrategyFactory
                     = new HazelcastKubernetesDiscoveryStrategyFactory();
             DiscoveryStrategyConfig discoveryStrategyConfig =
                     new DiscoveryStrategyConfig(hazelcastKubernetesDiscoveryStrategyFactory);
             discoveryStrategyConfig.addProperty(KubernetesProperties.SERVICE_DNS.key(),
-                    HAZELCAST_SERVICE_NAME);
+                    serviceName + "." + namespace + ".default.svc.cluster.local");
 
-            // Step (2) in docs above
             clientConfig.setProperty(ClusterProperty.DISCOVERY_SPI_ENABLED.toString(), "true");
             clientConfig
                     .getNetworkConfig()
                     .getDiscoveryConfig()
                     .addDiscoveryStrategyConfig(discoveryStrategyConfig);
+
+             */
+
+            clientConfig.getNetworkConfig().getKubernetesConfig().setEnabled(true)
+                    .setProperty("namespace", namespace)
+                    .setProperty("service-name", serviceName);
+            ClientUserCodeDeploymentConfig clientUserCodeDeploymentConfig = new ClientUserCodeDeploymentConfig();
+            clientUserCodeDeploymentConfig.addClass("com.futurewei.arionmaster.model.RoutingRule");
+            clientUserCodeDeploymentConfig.setEnabled(true);
+            clientConfig.setUserCodeDeploymentConfig(clientUserCodeDeploymentConfig);
         } else {
             clientConfig
                     .getNetworkConfig()
