@@ -7,16 +7,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(prefix = "hazelcast", name = "deployment", havingValue = "server")
+@ConditionalOnProperty(prefix = "arion.hazelcast", name = "deployment", havingValue = "server")
 public class ApplicationServerConfig {
 
-    @Value("${kubernetesconfig:false}")
+    @Value("${arion.kubernetes.config:false}")
     private boolean kubernetesconfig;
 
-    @Value("${namespace:default}")
+    @Value("${arion.hazelcast.config.namespace:default}")
     private String namespace;
 
-    @Value("${service.name:default}")
+    @Value("${arion.hazelcast.config.service.name:default}")
     private String serviceName;
 
     @Bean

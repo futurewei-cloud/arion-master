@@ -2,10 +2,6 @@ package com.futurewei.arionmaster.config;
 
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientUserCodeDeploymentConfig;
-import com.hazelcast.config.*;
-import com.hazelcast.kubernetes.HazelcastKubernetesDiscoveryStrategyFactory;
-import com.hazelcast.kubernetes.KubernetesProperties;
-import com.hazelcast.spi.properties.ClusterProperty;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -15,16 +11,16 @@ import org.springframework.context.annotation.Scope;
 import java.util.Collections;
 
 @Configuration
-@ConditionalOnProperty(prefix = "hazelcast", name = "deployment", havingValue = "client")
+@ConditionalOnProperty(prefix = "arion.hazelcast", name = "deployment", havingValue = "client")
 public class ApplicationClientConfig {
 
-    @Value("${kubernetesconfig:false}")
+    @Value("${arion.kubernetes.config:false}")
     private boolean kubernetesconfig;
 
-    @Value("${namespace:default}")
+    @Value("${arion.hazelcast.config.namespace:default}")
     private String namespace;
 
-    @Value("${service.name:default}")
+    @Value("${arion.hazelcast.config.service.name:default}")
     private String serviceName;
 
     @Bean
@@ -33,22 +29,6 @@ public class ApplicationClientConfig {
         ClientConfig clientConfig = new ClientConfig();
 
         if (kubernetesconfig) {
-            /*
-            HazelcastKubernetesDiscoveryStrategyFactory hazelcastKubernetesDiscoveryStrategyFactory
-                    = new HazelcastKubernetesDiscoveryStrategyFactory();
-            DiscoveryStrategyConfig discoveryStrategyConfig =
-                    new DiscoveryStrategyConfig(hazelcastKubernetesDiscoveryStrategyFactory);
-            discoveryStrategyConfig.addProperty(KubernetesProperties.SERVICE_DNS.key(),
-                    serviceName + "." + namespace + ".default.svc.cluster.local");
-
-            clientConfig.setProperty(ClusterProperty.DISCOVERY_SPI_ENABLED.toString(), "true");
-            clientConfig
-                    .getNetworkConfig()
-                    .getDiscoveryConfig()
-                    .addDiscoveryStrategyConfig(discoveryStrategyConfig);
-
-             */
-
             clientConfig.getNetworkConfig().getKubernetesConfig().setEnabled(true)
                     .setProperty("namespace", namespace)
                     .setProperty("service-name", serviceName);

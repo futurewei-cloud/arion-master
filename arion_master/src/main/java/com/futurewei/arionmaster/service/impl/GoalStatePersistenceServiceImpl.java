@@ -1,13 +1,14 @@
 package com.futurewei.arionmaster.service.impl;
 
 import com.futurewei.arion.schema.Common;
-import com.futurewei.arion.schema.Goalstate;
 import com.futurewei.arion.schema.Goalstateprovisioner;
 import com.futurewei.arionmaster.data.NeighborStateRepository;
 import com.futurewei.arionmaster.model.RoutingRule;
 import com.futurewei.arionmaster.service.GoalStatePersistenceService;
 import com.futurewei.arionmaster.version.VersionManager;
 import com.hazelcast.jet.datamodel.Tuple2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,8 @@ import java.util.List;
 
 @Service
 public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceService {
+
+    private static final Logger logger = LoggerFactory.getLogger(GoalStatePersistenceServiceImpl.class);
 
     @Autowired
     private VersionManager versionManager;
