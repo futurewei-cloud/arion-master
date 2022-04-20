@@ -80,7 +80,7 @@ spec:
   selector:
     matchLabels:
       app: hazelcast-arion
-  serviceName: hazelcast-arion-service
+  serviceName: hazelcast-service
   replicas: 3
   template:
     metadata:

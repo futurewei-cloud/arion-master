@@ -33,7 +33,7 @@
                   xsi:schemaLocation="http://www.hazelcast.com/schema/client-config
                   http://www.hazelcast.com/schema/client-config/hazelcast-client-config-5.1.xsd">
     <network>
-        <kubernetes enabled="true">
+        <kubernetes enabled="false">
             <namespace>hazelcast-arion</namespace>
             <service-name>hazelcast-service</service-name>
         </kubernetes>
