@@ -21,8 +21,7 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: arion-servcie
-  namespace: arion-servcie
+  name: arion
 rules:
   - apiGroups:
       - ""
@@ -37,10 +36,10 @@ rules:
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: arion-servcie
+  name: arion-master
 roleRef:
   kind: ClusterRole
-  name: arion-servcie
+  name: arion
   apiGroup: rbac.authorization.k8s.io
 subjects:
   - kind: ServiceAccount
@@ -48,18 +47,64 @@ subjects:
     namespace: default
 
 ---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: hazelcast-arion
+  name: hazelcast-arion
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: hazelcast-arion
+  serviceName: hazelcast-service
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: hazelcast-arion
+    spec:
+      serviceAccountName: arion-account
+      containers:
+        - name: hazelcast-arion-node
+          image: hazelcast/hazelcast:5.1.1
+          imagePullPolicy: IfNotPresent
+          env:
+            - name:  HZ_USERCODEDEPLOYMENT_ENABLED
+              value: "true"
 
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  # The name must be equal to TcpDiscoveryKubernetesIpFinder.serviceName
+  name: hazelcast-service
+  # The name must be equal to TcpDiscoveryKubernetesIpFinder.namespaceName
+  namespace: default
+  labels:
+    app: hazelcast-arion
+spec:
+  type: LoadBalancer
+  ports:
+    - name: hazelcast
+      port: 5701
+      targetPort: 5701
+  selector:
+    app: hazelcast-arion
+
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: arion-configmap
 data:
   application.properties: |
-    kubernetesconfig=true
-    namespace=hazelcast-arion
-    service.name=hazelcast-service
-    hazelcast.deployment = client
-
+    arion.kubernetes.config = true
+    arion.hazelcast.config.namespace =  default
+    arion.hazelcast.config.service.name = hazelcast-service
+    arion.hazelcast.deployment = client
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -71,7 +116,7 @@ spec:
   selector:
     matchLabels:
       app: arionmaster
-  replicas: 1
+  replicas: 3
   template:
     metadata:
       labels:
@@ -132,5 +177,3 @@ spec:
       nodePort: 30007
   selector:
     app: arionmaster
-
-
