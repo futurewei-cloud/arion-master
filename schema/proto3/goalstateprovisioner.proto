@@ -64,6 +64,7 @@ message RoutingRulesRequest {
         string hostip = 3;
         string mac = 4;
         uint32 tunnel_id = 5;
+        string hostmac = 6;
     }
 
     repeated RoutingRule routingRules = 3;

@@ -16,7 +16,6 @@ Copyright(c) 2020 Futurewei Cloud
 
 package com.futurewei.arionmaster.model;
 
-import java.io.Serializable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,15 +27,14 @@ import org.springframework.data.annotation.Id;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class RoutingRule implements Serializable {
-
-
-    private static final long serialVersionUID = 6529685098267757690L;
+public class RoutingRule {
 
     @Id
     private String id;
     @EqualsAndHashCode.Exclude
     private String mac;
+    @EqualsAndHashCode.Exclude
+    private String hostmac;
     @EqualsAndHashCode.Exclude
     private String hostip;
     @EqualsAndHashCode.Exclude
@@ -46,13 +44,15 @@ public class RoutingRule implements Serializable {
     @EqualsAndHashCode.Exclude
     private long version;
 
-    public RoutingRule(String id, String mac, String hostip, String ip, int vni, long version) {
+    public RoutingRule(String id, String mac, String hostmac, String hostip, String ip, int vni, long version) {
         this.id = id;
         this.mac = mac;
+        this.hostmac = hostmac;
         this.hostip = hostip;
         this.ip = ip;
         this.vni = vni;
         this.version = version;
     }
+
 
 }

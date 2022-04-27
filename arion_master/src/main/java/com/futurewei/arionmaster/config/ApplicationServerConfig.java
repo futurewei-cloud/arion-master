@@ -17,25 +17,32 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.arionmaster.config;
 
 import com.futurewei.arionmaster.controller.NeighborStateController;
-import com.hazelcast.client.HazelcastClient;
+import com.futurewei.arionmaster.model.RoutingRule;
+import com.futurewei.arionmaster.model.RoutintRuleSerializer;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientUserCodeDeploymentConfig;
 import com.hazelcast.config.*;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.spring.transaction.ManagedTransactionalTaskContext;
+import com.hazelcast.transaction.TransactionalTaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
+import com.hazelcast.spring.transaction.HazelcastTransactionManager;
 import org.springframework.context.annotation.Scope;
+import org.springframework.transaction.TransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.reactive.TransactionContext;
 
 import java.util.Collections;
 
 
 @Configuration
+@EnableTransactionManagement
 @ConditionalOnProperty(prefix = "arion.hazelcast", name = "deployment", havingValue = "server")
 public class ApplicationServerConfig {
 
@@ -53,8 +60,13 @@ public class ApplicationServerConfig {
     @Bean
     @Scope("singleton")
     Config config() {
+        Config config = new Config();
+        SerializerConfig sc = new SerializerConfig()
+                .setImplementation(new RoutintRuleSerializer())
+                .setTypeClass(RoutingRule.class);
+        config.getSerializationConfig().addSerializerConfig(sc);
+
         if (kubernetesconfig) {
-            Config config = new Config();
             config.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(false);
             config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
             config.getNetworkConfig().getJoin().getKubernetesConfig().setEnabled(true)
@@ -62,7 +74,7 @@ public class ApplicationServerConfig {
                     .setProperty("service-name", serviceName);
             return config;
         } else {
-            return new Config();
+            return config;
         }
     }
 
@@ -90,7 +102,17 @@ public class ApplicationServerConfig {
                     .getNetworkConfig()
                     .setAddresses(Collections.singletonList("127.0.0.1:5701"));
         }
-
         return clientConfig;
     }
+
+    @Bean
+    public TransactionManager transactionManager(HazelcastInstance hazelcastInstance) {
+        return new HazelcastTransactionManager(hazelcastInstance);
+    }
+
+    @Bean
+    public TransactionalTaskContext transactionalTaskContext(TransactionManager transactionManager) {
+        return new ManagedTransactionalTaskContext((HazelcastTransactionManager) transactionManager);
+    }
+
 }

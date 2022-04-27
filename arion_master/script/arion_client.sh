@@ -19,6 +19,6 @@ kubectl delete ClusterRole arion
 kubectl delete ClusterRoleBinding arion-master
 kubectl delete configmap arion-configmap
 kubectl delete statefulsets hazelcast-arion
-kubectl delete svc arion-master-grpc-service hazelcast-service arion-master-web-service arion-master-service
+kubectl delete svc arion-master-grpc-service hazelcast-service arion-master-web-service arion-master-service arion-master-hazelcast-service
 kubectl delete deployment arionmaster
 kubectl apply -f arion_client.yaml

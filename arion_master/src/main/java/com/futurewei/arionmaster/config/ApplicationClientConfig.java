@@ -18,12 +18,18 @@ package com.futurewei.arionmaster.config;
 
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientUserCodeDeploymentConfig;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.spring.transaction.HazelcastTransactionManager;
+import com.hazelcast.spring.transaction.ManagedTransactionalTaskContext;
+import com.hazelcast.transaction.TransactionalTaskContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.transaction.TransactionManager;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 @Configuration
@@ -32,6 +38,9 @@ public class ApplicationClientConfig {
 
     @Value("${arion.kubernetes.config:false}")
     private boolean kubernetesconfig;
+
+    @Value("${arion.hazelcast.config.addresses:127.0.0.1:5701}")
+    private String addresses;
 
     @Value("${arion.hazelcast.config.namespace:default}")
     private String namespace;
@@ -55,9 +64,19 @@ public class ApplicationClientConfig {
         } else {
             clientConfig
                     .getNetworkConfig()
-                    .setAddresses(Collections.singletonList("127.0.0.1:5701"));
+                    .setAddresses(Arrays.asList(addresses.split(",")));
         }
 
         return clientConfig;
+    }
+
+    @Bean
+    public TransactionManager transactionManager(HazelcastInstance hazelcastInstance) {
+        return new HazelcastTransactionManager(hazelcastInstance);
+    }
+
+    @Bean
+    public TransactionalTaskContext transactionalTaskContext(TransactionManager transactionManager) {
+        return new ManagedTransactionalTaskContext((HazelcastTransactionManager) transactionManager);
     }
 }

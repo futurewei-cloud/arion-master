@@ -57,6 +57,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
             RoutingRule neighbor = new RoutingRule(
                     String.join("/", String.valueOf(routingRule.getTunnelId()), routingRule.getIp()),
                     routingRule.getMac(),
+                    routingRule.getHostmac(),
                     routingRule.getHostip(),
                     routingRule.getIp(),
                     routingRule.getTunnelId(),
