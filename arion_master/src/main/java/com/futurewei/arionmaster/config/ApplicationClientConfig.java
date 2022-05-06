@@ -16,12 +16,19 @@ Copyright(c) 2020 Futurewei Cloud
 
 package com.futurewei.arionmaster.config;
 
+import com.futurewei.arionmaster.model.RoutingRule;
+import com.futurewei.arionmaster.model.RoutintRuleSerializer;
+import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientUserCodeDeploymentConfig;
+import com.hazelcast.config.Config;
+import com.hazelcast.config.SerializerConfig;
+import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.spring.transaction.HazelcastTransactionManager;
 import com.hazelcast.spring.transaction.ManagedTransactionalTaskContext;
 import com.hazelcast.transaction.TransactionalTaskContext;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -52,15 +59,19 @@ public class ApplicationClientConfig {
     @Scope("singleton")
     public ClientConfig clientConfig() throws Exception {
         ClientConfig clientConfig = new ClientConfig();
-
+        SerializerConfig sc = new SerializerConfig()
+                .setImplementation(new RoutintRuleSerializer())
+                .setTypeClass(RoutingRule.class);
+        clientConfig.getSerializationConfig().addSerializerConfig(sc);
+        ClientUserCodeDeploymentConfig clientUserCodeDeploymentConfig = new ClientUserCodeDeploymentConfig();
+        clientUserCodeDeploymentConfig.addClass("com.futurewei.arionmaster.model.RoutingRule");
+        clientUserCodeDeploymentConfig.addClass("com.futurewei.arionmaster.model.RoutintRuleSerializer");
+        clientUserCodeDeploymentConfig.setEnabled(true);
+        clientConfig.setUserCodeDeploymentConfig(clientUserCodeDeploymentConfig);
         if (kubernetesconfig) {
             clientConfig.getNetworkConfig().getKubernetesConfig().setEnabled(true)
                     .setProperty("namespace", namespace)
                     .setProperty("service-name", serviceName);
-            ClientUserCodeDeploymentConfig clientUserCodeDeploymentConfig = new ClientUserCodeDeploymentConfig();
-            clientUserCodeDeploymentConfig.addClass("com.futurewei.arionmaster.model.RoutingRule");
-            clientUserCodeDeploymentConfig.setEnabled(true);
-            clientConfig.setUserCodeDeploymentConfig(clientUserCodeDeploymentConfig);
         } else {
             clientConfig
                     .getNetworkConfig()
@@ -68,6 +79,12 @@ public class ApplicationClientConfig {
         }
 
         return clientConfig;
+    }
+
+
+    @Bean
+    public HazelcastInstance hazelcastInstance(ClientConfig clientConfig) {
+        return HazelcastClient.newHazelcastClient(clientConfig);
     }
 
     @Bean

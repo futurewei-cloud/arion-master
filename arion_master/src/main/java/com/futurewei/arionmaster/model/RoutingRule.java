@@ -53,6 +53,4 @@ public class RoutingRule {
         this.vni = vni;
         this.version = version;
     }
-
-
 }

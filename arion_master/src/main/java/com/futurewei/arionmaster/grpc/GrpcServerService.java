@@ -53,6 +53,7 @@ public class GrpcServerService extends GoalStateProvisionerGrpc.GoalStateProvisi
             responseObserver.onNext(reply);
             responseObserver.onCompleted();
         } catch (Exception e) {
+            logger.info(e.getMessage());
             responseObserver.onError(e);
         }
 
