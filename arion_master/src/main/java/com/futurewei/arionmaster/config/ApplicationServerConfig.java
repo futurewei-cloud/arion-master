@@ -1,6 +1,6 @@
 /*
 MIT License
-Copyright(c) 2020 Futurewei Cloud
+Copyright(c) 2022 Futurewei Cloud
 
     Permission is hereby granted,
     free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
@@ -17,8 +17,6 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.arionmaster.config;
 
 import com.futurewei.arionmaster.controller.NeighborStateController;
-import com.futurewei.arionmaster.model.RoutingRule;
-import com.futurewei.arionmaster.model.RoutintRuleSerializer;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientUserCodeDeploymentConfig;
 import com.hazelcast.config.*;
@@ -36,7 +34,6 @@ import com.hazelcast.spring.transaction.HazelcastTransactionManager;
 import org.springframework.context.annotation.Scope;
 import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.reactive.TransactionContext;
 
 import java.util.Collections;
 
@@ -61,10 +58,6 @@ public class ApplicationServerConfig {
     @Scope("singleton")
     Config config() {
         Config config = new Config();
-        SerializerConfig sc = new SerializerConfig()
-                .setImplementation(new RoutintRuleSerializer())
-                .setTypeClass(RoutingRule.class);
-        config.getSerializationConfig().addSerializerConfig(sc);
 
         if (kubernetesconfig) {
             config.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(false);

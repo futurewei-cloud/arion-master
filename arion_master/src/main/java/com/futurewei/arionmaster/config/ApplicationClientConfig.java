@@ -1,6 +1,6 @@
 /*
 MIT License
-Copyright(c) 2020 Futurewei Cloud
+Copyright(c) 2022 Futurewei Cloud
 
     Permission is hereby granted,
     free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
@@ -16,19 +16,14 @@ Copyright(c) 2020 Futurewei Cloud
 
 package com.futurewei.arionmaster.config;
 
-import com.futurewei.arionmaster.model.RoutingRule;
-import com.futurewei.arionmaster.model.RoutintRuleSerializer;
+
+import com.futurewei.common.model.ArionDataSerializableFactory;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.client.config.ClientUserCodeDeploymentConfig;
-import com.hazelcast.config.Config;
-import com.hazelcast.config.SerializerConfig;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.spring.transaction.HazelcastTransactionManager;
 import com.hazelcast.spring.transaction.ManagedTransactionalTaskContext;
 import com.hazelcast.transaction.TransactionalTaskContext;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -37,7 +32,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.transaction.TransactionManager;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 @Configuration
 @ConditionalOnProperty(prefix = "arion.hazelcast", name = "deployment", havingValue = "client")
@@ -55,19 +49,15 @@ public class ApplicationClientConfig {
     @Value("${arion.hazelcast.config.service.name:default}")
     private String serviceName;
 
+    @Value("${arion.hazelcast.clientusercodedeployment:false}")
+    private boolean clientUserCodeDeployment;
+
     @Bean
     @Scope("singleton")
     public ClientConfig clientConfig() throws Exception {
         ClientConfig clientConfig = new ClientConfig();
-        SerializerConfig sc = new SerializerConfig()
-                .setImplementation(new RoutintRuleSerializer())
-                .setTypeClass(RoutingRule.class);
-        clientConfig.getSerializationConfig().addSerializerConfig(sc);
-        ClientUserCodeDeploymentConfig clientUserCodeDeploymentConfig = new ClientUserCodeDeploymentConfig();
-        clientUserCodeDeploymentConfig.addClass("com.futurewei.arionmaster.model.RoutingRule");
-        clientUserCodeDeploymentConfig.addClass("com.futurewei.arionmaster.model.RoutintRuleSerializer");
-        clientUserCodeDeploymentConfig.setEnabled(true);
-        clientConfig.setUserCodeDeploymentConfig(clientUserCodeDeploymentConfig);
+
+        clientConfig.getSerializationConfig().addDataSerializableFactory(ArionDataSerializableFactory.FACTORY_ID, new ArionDataSerializableFactory());
         if (kubernetesconfig) {
             clientConfig.getNetworkConfig().getKubernetesConfig().setEnabled(true)
                     .setProperty("namespace", namespace)

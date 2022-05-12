@@ -16,9 +16,9 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.arionmaster.service.impl;
 
 import com.futurewei.arion.schema.Common;
+import com.futurewei.common.model.RoutingRule;
 import com.futurewei.arion.schema.Goalstateprovisioner;
 import com.futurewei.arionmaster.data.NeighborStateRepository;
-import com.futurewei.arionmaster.model.RoutingRule;
 import com.futurewei.arionmaster.service.GoalStatePersistenceService;
 import com.futurewei.arionmaster.version.VersionManager;
 import com.hazelcast.jet.datamodel.Tuple2;
@@ -55,7 +55,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         List<RoutingRule> neighborStateDeleteList = new ArrayList<>();
         routingRulesRequest.getRoutingRulesList().forEach(routingRule -> {
             RoutingRule neighbor = new RoutingRule(
-                    String.join("/", String.valueOf(routingRule.getTunnelId()), routingRule.getIp()),
+                    String.join("-", String.valueOf(routingRule.getTunnelId()), routingRule.getIp()),
                     routingRule.getMac(),
                     routingRule.getHostmac(),
                     routingRule.getHostip(),

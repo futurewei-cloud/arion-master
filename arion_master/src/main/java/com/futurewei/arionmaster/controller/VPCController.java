@@ -17,8 +17,8 @@ package com.futurewei.arionmaster.controller;
 
 import java.util.List;
 
-import com.futurewei.arionmaster.data.NeighborStateRepository;
-import com.futurewei.common.model.RoutingRule;
+import com.futurewei.arionmaster.data.VPCRepository;
+import com.futurewei.common.model.VPC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,39 +31,34 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/neighborstate")
-public class NeighborStateController {
+@RequestMapping("/vpc")
+public class VPCController {
 
-    private static final Logger logger = LoggerFactory.getLogger(NeighborStateController.class);
+    private static final Logger logger = LoggerFactory.getLogger(VPCController.class);
 
-    private NeighborStateRepository repository;
+    private VPCRepository repository;
 
-    NeighborStateController(NeighborStateRepository repository) {
+    VPCController(VPCRepository repository) {
         this.repository = repository;
     }
 
     @GetMapping("/vni/{vni}")
-    public List<RoutingRule> findByVni(@PathVariable("vni") int vni) {
+    public List<VPC> findByVni(@PathVariable("vni") int vni) {
         logger.info(String.format("findByVni({})", vni));
         return repository.findByVni(vni);
     }
 
     @GetMapping("/{id}")
-    public RoutingRule findById(@PathVariable("id") String id) {
+    public VPC findById(@PathVariable("id") String id) {
         logger.info("findById({})", id);
         return repository.findById(id).get();
     }
 
-    @GetMapping("/hostip/{hostip}")
-    public List<RoutingRule> findByHostIp(@PathVariable("hostip") String hostip) {
-        logger.info("findByHostIp({})", hostip);
-        return repository.findByHostIp(hostip);
-    }
 
     @PostMapping
-    public RoutingRule add(@RequestBody RoutingRule neighbor) {
-        logger.info("add({})", neighbor);
-        return repository.save(neighbor);
+    public VPC add(@RequestBody VPC vpc) {
+        logger.info("add({})", vpc);
+        return repository.save(vpc);
     }
 
     @DeleteMapping("/{id}")

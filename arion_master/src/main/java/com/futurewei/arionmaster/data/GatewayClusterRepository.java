@@ -1,6 +1,6 @@
 /*
 MIT License
-Copyright(c) 2020 Futurewei Cloud
+Copyright(c) 2022 Futurewei Cloud
 
     Permission is hereby granted,
     free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
@@ -15,15 +15,11 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.arionmaster.data;
 
-import com.futurewei.common.model.RoutingRule;
+import com.futurewei.common.model.ArionGatewayCluster;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-
-public interface NeighborStateRepository extends CrudRepository<RoutingRule, String> {
-
-    List<RoutingRule> findByVni(Integer vni);
-
-    List<RoutingRule> findByHostIp(String hostIp);
+public interface GatewayClusterRepository extends CrudRepository<ArionGatewayCluster, String> {
+    List<ArionGatewayCluster> findByPortIbo(String portIbo);
 }

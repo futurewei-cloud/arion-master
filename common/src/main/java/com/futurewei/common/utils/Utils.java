@@ -1,6 +1,6 @@
 /*
 MIT License
-Copyright(c) 2020 Futurewei Cloud
+Copyright(c) 2022 Futurewei Cloud
 
     Permission is hereby granted,
     free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
@@ -13,17 +13,20 @@ Copyright(c) 2020 Futurewei Cloud
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package com.futurewei.arionmaster.data;
+package com.futurewei.common.utils;
 
-import com.futurewei.common.model.RoutingRule;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.type.filter.RegexPatternTypeFilter;
 
-import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-
-public interface NeighborStateRepository extends CrudRepository<RoutingRule, String> {
-
-    List<RoutingRule> findByVni(Integer vni);
-
-    List<RoutingRule> findByHostIp(String hostIp);
+public class Utils {
+    public static Set<String> findClasses(String packageName) throws ClassNotFoundException {
+        final ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.addIncludeFilter(new RegexPatternTypeFilter(Pattern.compile(".*")));
+        final Set<String> classes = provider.findCandidateComponents(packageName).stream().map(item -> item.getBeanClassName()).collect(Collectors.toSet());
+        return classes;
+    }
 }

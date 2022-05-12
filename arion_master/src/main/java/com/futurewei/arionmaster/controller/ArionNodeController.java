@@ -17,8 +17,9 @@ package com.futurewei.arionmaster.controller;
 
 import java.util.List;
 
-import com.futurewei.arionmaster.data.NeighborStateRepository;
-import com.futurewei.common.model.RoutingRule;
+import com.futurewei.arionmaster.data.ArionNodeRepository;
+
+import com.futurewei.common.model.ArionNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,39 +32,33 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/neighborstate")
-public class NeighborStateController {
+@RequestMapping("/arionnode")
+public class ArionNodeController {
 
-    private static final Logger logger = LoggerFactory.getLogger(NeighborStateController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ArionNodeController.class);
 
-    private NeighborStateRepository repository;
+    private ArionNodeRepository repository;
 
-    NeighborStateController(NeighborStateRepository repository) {
+    ArionNodeController(ArionNodeRepository repository) {
         this.repository = repository;
     }
 
-    @GetMapping("/vni/{vni}")
-    public List<RoutingRule> findByVni(@PathVariable("vni") int vni) {
-        logger.info(String.format("findByVni({})", vni));
-        return repository.findByVni(vni);
+    @GetMapping("/ipcontrol/{ip_control}")
+    public List<ArionNode> findByIpControl(@PathVariable("ip_control") String ip_control) {
+        logger.info(String.format("findArionNodeByIp_control({})", ip_control));
+        return repository.findByIpControl(ip_control);
     }
 
     @GetMapping("/{id}")
-    public RoutingRule findById(@PathVariable("id") String id) {
+    public ArionNode findById(@PathVariable("id") String id) {
         logger.info("findById({})", id);
         return repository.findById(id).get();
     }
 
-    @GetMapping("/hostip/{hostip}")
-    public List<RoutingRule> findByHostIp(@PathVariable("hostip") String hostip) {
-        logger.info("findByHostIp({})", hostip);
-        return repository.findByHostIp(hostip);
-    }
-
     @PostMapping
-    public RoutingRule add(@RequestBody RoutingRule neighbor) {
-        logger.info("add({})", neighbor);
-        return repository.save(neighbor);
+    public ArionNode add(@RequestBody ArionNode arionNode) {
+        logger.info("add({})", arionNode);
+        return repository.save(arionNode);
     }
 
     @DeleteMapping("/{id}")

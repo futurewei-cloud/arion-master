@@ -1,6 +1,6 @@
 /*
 MIT License
-Copyright(c) 2020 Futurewei Cloud
+Copyright(c) 2022 Futurewei Cloud
 
     Permission is hereby granted,
     free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
@@ -13,44 +13,13 @@ Copyright(c) 2020 Futurewei Cloud
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+package com.futurewei.arionmaster.data;
 
-package com.futurewei.arionmaster.model;
+import com.futurewei.common.model.ArionNode;
+import org.springframework.data.repository.CrudRepository;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import java.util.List;
 
-import org.springframework.data.annotation.Id;
-
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
-public class RoutingRule {
-
-    @Id
-    private String id;
-    @EqualsAndHashCode.Exclude
-    private String mac;
-    @EqualsAndHashCode.Exclude
-    private String hostmac;
-    @EqualsAndHashCode.Exclude
-    private String hostip;
-    @EqualsAndHashCode.Exclude
-    private String ip;
-    @EqualsAndHashCode.Exclude
-    private int vni;
-    @EqualsAndHashCode.Exclude
-    private long version;
-
-    public RoutingRule(String id, String mac, String hostmac, String hostip, String ip, int vni, long version) {
-        this.id = id;
-        this.mac = mac;
-        this.hostmac = hostmac;
-        this.hostip = hostip;
-        this.ip = ip;
-        this.vni = vni;
-        this.version = version;
-    }
+public interface ArionNodeRepository extends CrudRepository<ArionNode, String> {
+    List<ArionNode> findByIpControl(String ipControl);
 }

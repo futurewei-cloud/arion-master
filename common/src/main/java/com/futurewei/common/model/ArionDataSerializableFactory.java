@@ -1,6 +1,6 @@
 /*
 MIT License
-Copyright(c) 2020 Futurewei Cloud
+Copyright(c) 2022 Futurewei Cloud
 
     Permission is hereby granted,
     free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
@@ -13,17 +13,34 @@ Copyright(c) 2020 Futurewei Cloud
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package com.futurewei.arionmaster.data;
+package com.futurewei.common.model;
 
-import com.futurewei.common.model.RoutingRule;
-import org.springframework.data.repository.CrudRepository;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-import java.util.List;
+public class ArionDataSerializableFactory implements com.hazelcast.nio.serialization.DataSerializableFactory {
 
+        public static final int FACTORY_ID = 1;
 
-public interface NeighborStateRepository extends CrudRepository<RoutingRule, String> {
+        public static final int ROUTING_RULE_TYPE = 1;
 
-    List<RoutingRule> findByVni(Integer vni);
+        public static final int GATEWAY_CLUSTER_TYPE = 2;
 
-    List<RoutingRule> findByHostIp(String hostIp);
+        public static final int ARION_NODE_TYPE = 3;
+
+        public static final int VPC_TYPE = 4;
+
+        @Override
+        public IdentifiedDataSerializable create(int typeId) {
+            if ( typeId == ROUTING_RULE_TYPE ) {
+                return new RoutingRule();
+            } else if (typeId == GATEWAY_CLUSTER_TYPE) {
+                return new ArionGatewayCluster();
+            } else if (typeId == ARION_NODE_TYPE) {
+                return new ArionNode();
+            } else if (typeId == VPC_TYPE) {
+                return new VPC();
+            } else {
+                return null;
+            }
+        }
 }
