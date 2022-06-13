@@ -15,15 +15,15 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.arionmaster.data;
 
-import com.futurewei.common.model.RoutingRule;
+import com.futurewei.common.model.NeighborRule;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
 
-public interface NeighborStateRepository extends CrudRepository<RoutingRule, String> {
+public interface NeighborStateRepository extends CrudRepository<NeighborRule, String> {
 
-    List<RoutingRule> findByVni(Integer vni);
+    List<NeighborRule> findByVni(Integer vni);
 
-    List<RoutingRule> findByHostIp(String hostIp);
+    List<NeighborRule> findByHostIp(String hostIp);
 }

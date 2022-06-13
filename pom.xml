@@ -35,7 +35,6 @@
     </dependencies>
     <packaging>pom</packaging>
     <modules>
-        <module>schema</module>
         <module>arion_master</module>
         <module>common</module>
     </modules>

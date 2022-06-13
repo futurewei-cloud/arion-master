@@ -18,7 +18,7 @@ package com.futurewei.arionmaster.controller;
 import java.util.List;
 
 import com.futurewei.arionmaster.data.NeighborStateRepository;
-import com.futurewei.common.model.RoutingRule;
+import com.futurewei.common.model.NeighborRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,25 +43,25 @@ public class NeighborStateController {
     }
 
     @GetMapping("/vni/{vni}")
-    public List<RoutingRule> findByVni(@PathVariable("vni") int vni) {
+    public List<NeighborRule> findByVni(@PathVariable("vni") int vni) {
         logger.info(String.format("findByVni({})", vni));
         return repository.findByVni(vni);
     }
 
     @GetMapping("/{id}")
-    public RoutingRule findById(@PathVariable("id") String id) {
+    public NeighborRule findById(@PathVariable("id") String id) {
         logger.info("findById({})", id);
         return repository.findById(id).get();
     }
 
     @GetMapping("/hostip/{hostip}")
-    public List<RoutingRule> findByHostIp(@PathVariable("hostip") String hostip) {
+    public List<NeighborRule> findByHostIp(@PathVariable("hostip") String hostip) {
         logger.info("findByHostIp({})", hostip);
         return repository.findByHostIp(hostip);
     }
 
     @PostMapping
-    public RoutingRule add(@RequestBody RoutingRule neighbor) {
+    public NeighborRule add(@RequestBody NeighborRule neighbor) {
         logger.info("add({})", neighbor);
         return repository.save(neighbor);
     }

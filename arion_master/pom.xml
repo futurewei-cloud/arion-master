@@ -21,6 +21,35 @@
         <snippets>${project.basedir}/target/generated-snippets/</snippets>
     </properties>
 
+    <!--
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.futurewei.alcor</groupId>
+                <artifactId>alcor</artifactId>
+                <version>8c3b22347a85f0d7b959b24acb0971fbeeb198fd</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.futurewei.alcor</groupId>
+                        <artifactId>apigateway</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.futurewei.alcor</groupId>
+                        <artifactId>common</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.futurewei.alcor</groupId>
+                        <artifactId>web</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.futurewei.alcor</groupId>
+                        <artifactId>dataplanemanager</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    -->
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -31,12 +60,12 @@
             <artifactId>grpc-spring-boot-starter</artifactId>
             <version>2.13.1.RELEASE</version>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.experimental</groupId>
             <artifactId>spring-native</artifactId>
             <version>${spring-native.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
@@ -79,15 +108,88 @@
         </dependency>
         <dependency>
             <groupId>com.futurewei.arion</groupId>
-            <artifactId>schema</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.futurewei.arion</groupId>
             <artifactId>common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.futurewei-cloud</groupId>
+            <artifactId>alcor</artifactId>
+            <exclusions>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>apigateway</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>common</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>dataplanemanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>elasticipmanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>gatewaymanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>macmanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>network-acl-manager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>networkconfigmanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>nodemanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>portmanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>privateipmanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>pseudo_controller</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>quotamanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>routemanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>securitygroupmanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>subnetmanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>vpcmanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>web</artifactId>
+                </exclusion>
+
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -138,6 +240,10 @@
         </plugins>
     </build>
     <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
         <repository>
             <id>spring-releases</id>
             <name>Spring Releases</name>

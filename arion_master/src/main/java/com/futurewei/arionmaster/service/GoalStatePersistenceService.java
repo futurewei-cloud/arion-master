@@ -15,8 +15,8 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.arionmaster.service;
 
-import com.futurewei.arion.schema.Goalstateprovisioner;
+import com.futurewei.alcor.schema.Goalstateprovisioner;
 
 public interface GoalStatePersistenceService {
-    void goalstateProcess(Goalstateprovisioner.RoutingRulesRequest routingRulesRequest) throws Exception;
+    void goalstateProcess(Goalstateprovisioner.NeighborRulesRequest neighborRulesRequest) throws Exception;
 }

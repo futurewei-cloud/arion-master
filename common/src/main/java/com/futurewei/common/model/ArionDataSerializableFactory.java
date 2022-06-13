@@ -32,7 +32,7 @@ public class ArionDataSerializableFactory implements com.hazelcast.nio.serializa
         @Override
         public IdentifiedDataSerializable create(int typeId) {
             if ( typeId == ROUTING_RULE_TYPE ) {
-                return new RoutingRule();
+                return new NeighborRule();
             } else if (typeId == GATEWAY_CLUSTER_TYPE) {
                 return new ArionGatewayCluster();
             } else if (typeId == ARION_NODE_TYPE) {
