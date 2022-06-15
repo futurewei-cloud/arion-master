@@ -17,6 +17,7 @@ Copyright(c) 2022 Futurewei Cloud
 package com.futurewei.arionmaster.config;
 
 import com.futurewei.arionmaster.controller.NeighborStateController;
+import com.futurewei.common.model.ArionDataSerializableFactory;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientUserCodeDeploymentConfig;
 import com.hazelcast.config.*;
@@ -58,7 +59,7 @@ public class ApplicationServerConfig {
     @Scope("singleton")
     Config config() {
         Config config = new Config();
-
+        config.getSerializationConfig().addDataSerializableFactory(1, new ArionDataSerializableFactory());
         if (kubernetesconfig) {
             config.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(false);
             config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
@@ -81,13 +82,12 @@ public class ApplicationServerConfig {
     @Scope("singleton")
     public ClientConfig clientConfig() throws Exception {
         ClientConfig clientConfig = new ClientConfig();
-
         if (kubernetesconfig) {
             clientConfig.getNetworkConfig().getKubernetesConfig().setEnabled(true)
                     .setProperty("namespace", namespace)
                     .setProperty("service-name", serviceName);
             ClientUserCodeDeploymentConfig clientUserCodeDeploymentConfig = new ClientUserCodeDeploymentConfig();
-            clientUserCodeDeploymentConfig.addClass("com.futurewei.arionmaster.model.RoutingRule");
+            clientUserCodeDeploymentConfig.addClass("com.futurewei.arionmaster.model.NeighborRule");
             clientUserCodeDeploymentConfig.setEnabled(true);
             clientConfig.setUserCodeDeploymentConfig(clientUserCodeDeploymentConfig);
         } else {

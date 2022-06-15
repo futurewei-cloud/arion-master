@@ -15,10 +15,10 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.arionmaster.grpc;
 
-import com.futurewei.arion.schema.Common;
-import com.futurewei.arion.schema.GoalStateProvisionerGrpc;
-import com.futurewei.arion.schema.Goalstate;
-import com.futurewei.arion.schema.Goalstateprovisioner;
+import com.futurewei.alcor.schema.Common;
+import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
+import com.futurewei.alcor.schema.Goalstate;
+import com.futurewei.alcor.schema.Goalstateprovisioner;
 import com.futurewei.arionmaster.controller.NeighborStateController;
 import com.futurewei.arionmaster.service.GoalStatePersistenceService;
 import io.grpc.stub.StreamObserver;
@@ -38,7 +38,7 @@ public class GrpcServerService extends GoalStateProvisionerGrpc.GoalStateProvisi
     private GoalStatePersistenceService goalStateProcess;
 
     @Override
-    public void pushGoalstates(Goalstateprovisioner.RoutingRulesRequest request, StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
+    public void pushGoalstates(Goalstateprovisioner.NeighborRulesRequest request, StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
         try {
             goalStateProcess.goalstateProcess(request);
 

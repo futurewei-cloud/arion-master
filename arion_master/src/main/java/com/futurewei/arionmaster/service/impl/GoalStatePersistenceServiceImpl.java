@@ -15,9 +15,9 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.arionmaster.service.impl;
 
-import com.futurewei.arion.schema.Common;
-import com.futurewei.common.model.RoutingRule;
-import com.futurewei.arion.schema.Goalstateprovisioner;
+import com.futurewei.alcor.schema.Common;
+import com.futurewei.common.model.NeighborRule;
+import com.futurewei.alcor.schema.Goalstateprovisioner;
 import com.futurewei.arionmaster.data.NeighborStateRepository;
 import com.futurewei.arionmaster.service.GoalStatePersistenceService;
 import com.futurewei.arionmaster.version.VersionManager;
@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 @Service
@@ -42,41 +43,46 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
     @Autowired
     private NeighborStateRepository repository;
 
-    public void goalstateProcess(Goalstateprovisioner.RoutingRulesRequest routingRulesRequest) throws Exception {
+    public void goalstateProcess(Goalstateprovisioner.NeighborRulesRequest neighborRulesRequest) throws Exception {
 
         var version = versionManager.getVersion();
-        var neighborStates = getNeighborStateList(routingRulesRequest, version);
+        var neighborStates = getNeighborStateList(neighborRulesRequest, version);
         if (neighborStates.f0().size() > 0) updateNeighborState(neighborStates.f0());
         if (neighborStates.f1().size() > 0) deleteNeighborState(neighborStates.f1());
     }
 
-    private Tuple2<List<RoutingRule>, List<RoutingRule>> getNeighborStateList(Goalstateprovisioner.RoutingRulesRequest routingRulesRequest, long version) throws Exception{
-        List<RoutingRule> neighborStateUpdateList = new ArrayList<>();
-        List<RoutingRule> neighborStateDeleteList = new ArrayList<>();
-        routingRulesRequest.getRoutingRulesList().forEach(routingRule -> {
-            RoutingRule neighbor = new RoutingRule(
-                    String.join("-", String.valueOf(routingRule.getTunnelId()), routingRule.getIp()),
-                    routingRule.getMac(),
-                    routingRule.getHostmac(),
-                    routingRule.getHostip(),
-                    routingRule.getIp(),
-                    routingRule.getTunnelId(),
-                    version
-            );
-
-            if (routingRule.getOperationType().equals(Common.OperationType.CREATE)   ||
-                    routingRule.getOperationType().equals(Common.OperationType.INFO) ||
-                    routingRule.getOperationType().equals(Common.OperationType.UPDATE)
-            ) {
-                neighborStateUpdateList.add(neighbor);
-            } else if (routingRule.getOperationType().equals(Common.OperationType.DELETE)) {
-                neighborStateDeleteList.add(neighbor);
-            }
-        });
+    private Tuple2<List<NeighborRule>, List<NeighborRule>> getNeighborStateList(Goalstateprovisioner.NeighborRulesRequest neighborRulesRequest, long version) throws Exception{
+        List<NeighborRule> neighborStateUpdateList = new ArrayList<>();
+        List<NeighborRule> neighborStateDeleteList = new ArrayList<>();
+        AtomicReference<Common.OperationType> operationType = new AtomicReference<>(Common.OperationType.INFO);
+        neighborRulesRequest.getNeigborstatesList()
+                .forEach(neighborState -> {
+                    operationType.set(neighborState.getOperationType());
+                    neighborState.getConfiguration().getFixedIpsList().forEach(fixedIp -> {
+                        NeighborRule neighborRule = new NeighborRule(
+                                String.join("-", String.valueOf(fixedIp.getTunnelId()), fixedIp.getIpAddress()),
+                                fixedIp.getMacAddress(),
+                                fixedIp.getArionGroup(),
+                                neighborState.getConfiguration().getMacAddress(),
+                                neighborState.getConfiguration().getHostIpAddress(),
+                                fixedIp.getIpAddress(),
+                                fixedIp.getTunnelId(),
+                                version
+                        );
+                        if (operationType.get().equals(Common.OperationType.CREATE)   ||
+                                operationType.get().equals(Common.OperationType.INFO) ||
+                                operationType.get().equals(Common.OperationType.UPDATE)
+                        ) {
+                            neighborStateUpdateList.add(neighborRule);
+                        } else if (operationType.get().equals(Common.OperationType.DELETE)) {
+                            neighborStateDeleteList.add(neighborRule);
+                        }
+                    });
+                });
         return Tuple2.tuple2(neighborStateUpdateList, neighborStateDeleteList);
     }
 
-    private void updateNeighborState (List<RoutingRule> neighborStateList) {
+    private void updateNeighborState (List<NeighborRule> neighborStateList) {
         try {
             repository.saveAll(neighborStateList);
         } catch (Exception e) {
@@ -84,7 +90,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         }
     }
 
-    private void deleteNeighborState (List<RoutingRule> neighborStateList) {
+    private void deleteNeighborState (List<NeighborRule> neighborStateList) {
         try {
             repository.deleteAll(neighborStateList);
         } catch (Exception e) {

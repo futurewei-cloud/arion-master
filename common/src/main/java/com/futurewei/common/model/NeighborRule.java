@@ -34,7 +34,7 @@ import java.io.Serializable;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class RoutingRule implements IdentifiedDataSerializable, Serializable {
+public class NeighborRule implements IdentifiedDataSerializable, Serializable {
 
     private static final long serialVersionUID = 6529685098267757690L;
 
@@ -58,19 +58,24 @@ public class RoutingRule implements IdentifiedDataSerializable, Serializable {
     private String ip;
 
     @EqualsAndHashCode.Exclude
+    @JsonProperty("ariongroup")
+    private String arionGroup;
+
+    @EqualsAndHashCode.Exclude
     @JsonProperty("vni")
     private int vni;
 
     @EqualsAndHashCode.Exclude
     private long version;
 
-    public RoutingRule() {
+    public NeighborRule() {
 
     }
 
-    public RoutingRule(String id, String mac, String hostMac, String hostIp, String ip, int vni, long version) {
+    public NeighborRule(String id, String mac, String arionGroup, String hostMac, String hostIp, String ip, int vni, long version) {
         this.id = id;
         this.mac = mac;
+        this.arionGroup = arionGroup;
         this.hostMac = hostMac;
         this.hostIp = hostIp;
         this.ip = ip;
@@ -92,6 +97,7 @@ public class RoutingRule implements IdentifiedDataSerializable, Serializable {
     public void writeData(ObjectDataOutput objectDataOutput) throws IOException {
         objectDataOutput.writeString(id);
         objectDataOutput.writeString(mac);
+        objectDataOutput.writeString(arionGroup);
         objectDataOutput.writeString(hostMac);
         objectDataOutput.writeString(hostIp);
         objectDataOutput.writeString(ip);
@@ -103,6 +109,7 @@ public class RoutingRule implements IdentifiedDataSerializable, Serializable {
     public void readData(ObjectDataInput objectDataInput) throws IOException {
         this.id = objectDataInput.readString();
         this.mac = objectDataInput.readString();
+        this.arionGroup = objectDataInput.readString();
         this.hostMac = objectDataInput.readString();
         this.hostIp = objectDataInput.readString();
         this.ip = objectDataInput.readString();
