@@ -45,12 +45,12 @@ public final class Watcher {
     @Autowired HazelcastInstance hazelcastInstance;
 
     public Runnable watch(Arionmaster.ArionWingRequest req, String mapName, String cacheName, Consumer<Arionmaster.NeighborRule> resConsumer) {
-            QueryCacheConfig queryCacheConfig = new QueryCacheConfig(cacheName);
-            queryCacheConfig.getPredicateConfig().setImplementation(new NeighborRuleService(req.getGroup(), req.getRev()));
-            clientConfig.addQueryCacheConfig(mapName, queryCacheConfig);
-            HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
-            IMap<String, NeighborRule> map = (IMap) client.getMap(mapName);
-            var cache = map.getQueryCache(cacheName);
+        QueryCacheConfig queryCacheConfig = new QueryCacheConfig(cacheName);
+        queryCacheConfig.getPredicateConfig().setImplementation(new NeighborRuleService(req.getGroup(), req.getRev()));
+        clientConfig.addQueryCacheConfig(mapName, queryCacheConfig);
+        HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
+        IMap<String, NeighborRule> map = (IMap) client.getMap(mapName);
+        var cache = map.getQueryCache(cacheName);
 
         for (var neighborRule : cache.values()) {
             try {
@@ -95,11 +95,7 @@ public final class Watcher {
 
             @Override
             public void entryEvicted(EntryEvent entryEvent) {
-                try {
-                    resConsumer.accept(buildNeighborRule((NeighborRule) entryEvent.getValue(), Common.OperationType.CREATE));
-                } catch (Exception e) {
-                    logger.info(e.getMessage());
-                }
+                
             }
 
             @Override
