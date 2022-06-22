@@ -37,80 +37,76 @@ import java.util.function.Consumer;
 @Service
 public final class Watcher {
 
-    private static final Logger logger = LoggerFactory.getLogger(GrpcServerService.class);
-
-    @Autowired
-    private ClientConfig clientConfig;
+    private static final Logger logger = LoggerFactory.getLogger(Watcher.class);
 
     @Autowired HazelcastInstance hazelcastInstance;
 
     public Runnable watch(Arionmaster.ArionWingRequest req, String mapName, String cacheName, Consumer<Arionmaster.NeighborRule> resConsumer) {
-        QueryCacheConfig queryCacheConfig = new QueryCacheConfig(cacheName);
-        queryCacheConfig.getPredicateConfig().setImplementation(new NeighborRuleService(req.getGroup(), req.getRev()));
-        clientConfig.addQueryCacheConfig(mapName, queryCacheConfig);
-        HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
-        IMap<String, NeighborRule> map = (IMap) client.getMap(mapName);
-        var cache = map.getQueryCache(cacheName);
-
-        for (var neighborRule : cache.values()) {
-            try {
-                resConsumer.accept(buildNeighborRule(neighborRule, Common.OperationType.CREATE));
-            } catch (Exception e) {
-                logger.info(e.getMessage());
-            }
-        }
-        cache.addEntryListener(new EntryListener() {
-            @Override
-            public void mapEvicted(MapEvent mapEvent) {
-
-            }
-
-            @Override
-            public void mapCleared(MapEvent mapEvent) {
-
-            }
-
-            @Override
-            public void entryUpdated(EntryEvent entryEvent) {
-                try {
-                    resConsumer.accept(buildNeighborRule((NeighborRule) entryEvent.getValue(), Common.OperationType.CREATE));
-                } catch (Exception e) {
-                    logger.info(e.getMessage());
-                }
-            }
-
-            @Override
-            public void entryRemoved(EntryEvent entryEvent) {
-                try {
-                    resConsumer.accept(buildNeighborRule((NeighborRule) entryEvent.getValue(), Common.OperationType.DELETE));
-                } catch (Exception e) {
-                    logger.info(e.getMessage());
-                }
-            }
-
-            @Override
-            public void entryExpired(EntryEvent entryEvent) {
-
-            }
-
-            @Override
-            public void entryEvicted(EntryEvent entryEvent) {
-                
-            }
-
-            @Override
-            public void entryAdded(EntryEvent entryEvent) {
-                try {
-                    resConsumer.accept(buildNeighborRule((NeighborRule) entryEvent.getValue(), Common.OperationType.CREATE));
-                } catch (Exception e) {
-                    logger.info(e.getMessage());
-                }
-
-            }
-        }, true);
+        IMap<String, NeighborRule> map = (IMap) hazelcastInstance.getMap(mapName);
+        var cache = map.getQueryCache(cacheName, new NeighborRuleListener(resConsumer), new NeighborRuleService(req.getGroup(), req.getRev()), true);
         return () -> {
             cache.destroy();
         };
+    }
+}
+
+class NeighborRuleListener implements EntryListener {
+
+    private static final Logger logger = LoggerFactory.getLogger(NeighborRuleListener.class);
+
+    private Consumer<Arionmaster.NeighborRule> resConsumer;
+
+
+    public NeighborRuleListener (Consumer<Arionmaster.NeighborRule> resConsumer) {
+        this.resConsumer = resConsumer;
+    }
+
+    @Override
+    public void mapEvicted(MapEvent mapEvent) {
+
+    }
+
+    @Override
+    public void mapCleared(MapEvent mapEvent) {
+
+    }
+
+    @Override
+    public void entryUpdated(EntryEvent entryEvent) {
+        try {
+            resConsumer.accept(buildNeighborRule((NeighborRule) entryEvent.getValue(), Common.OperationType.CREATE));
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+        }
+    }
+
+    @Override
+    public void entryRemoved(EntryEvent entryEvent) {
+        try {
+            resConsumer.accept(buildNeighborRule((NeighborRule) entryEvent.getValue(), Common.OperationType.DELETE));
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+        }
+    }
+
+    @Override
+    public void entryExpired(EntryEvent entryEvent) {
+
+    }
+
+    @Override
+    public void entryEvicted(EntryEvent entryEvent) {
+
+    }
+
+    @Override
+    public void entryAdded(EntryEvent entryEvent) {
+        try {
+            resConsumer.accept(buildNeighborRule((NeighborRule) entryEvent.getValue(), Common.OperationType.CREATE));
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+        }
+
     }
 
     public Arionmaster.NeighborRule buildNeighborRule(NeighborRule neighborRule, Common.OperationType operationType) throws Exception {
