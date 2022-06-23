@@ -1,6 +1,6 @@
 /*
 MIT License
-Copyright(c) 2022 Futurewei Cloud
+Copyright(c) 2020 Futurewei Cloud
 
     Permission is hereby granted,
     free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
@@ -13,38 +13,31 @@ Copyright(c) 2022 Futurewei Cloud
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package com.futurewei.common.model;
+package com.futurewei.common.service;
 
-import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
+import com.futurewei.common.model.NeighborRule;
+import com.hazelcast.query.Predicate;
 
+import java.util.Map;
 
-public class ArionDataSerializableFactory implements com.hazelcast.nio.serialization.DataSerializableFactory {
+public class NeighborRuleService implements Predicate<String, NeighborRule> {
 
-        public static final int FACTORY_ID = 1;
+    private String group;
+    private long rev;
 
-        public static final int ROUTING_RULE_TYPE = 1;
+    public NeighborRuleService(String group, long rev) {
+        this.group = group;
+        this.rev = rev;
+    }
 
-        public static final int GATEWAY_CLUSTER_TYPE = 2;
-
-        public static final int ARION_NODE_TYPE = 3;
-
-        public static final int VPC_TYPE = 4;
-
-        @Override
-        public IdentifiedDataSerializable create(int typeId) {
-            if ( typeId == ROUTING_RULE_TYPE ) {
-                return new NeighborRule();
-            } else if (typeId == GATEWAY_CLUSTER_TYPE) {
-                return new ArionGatewayCluster();
-            } else if (typeId == ARION_NODE_TYPE) {
-                return new ArionNode();
-            } else if (typeId == VPC_TYPE) {
-                return new VPC();
-            } else {
-                return null;
-            }
+    @Override
+    public boolean apply(Map.Entry<String, NeighborRule> entry) {
+        var neighborRule = entry.getValue();
+        if (neighborRule.getArionGroup().equals(group) && neighborRule.getVersion() >= rev) {
+            return true;
         }
+
+        return false;
+
+    }
 }
-
-
-

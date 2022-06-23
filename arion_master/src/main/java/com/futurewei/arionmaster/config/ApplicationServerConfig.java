@@ -82,14 +82,12 @@ public class ApplicationServerConfig {
     @Scope("singleton")
     public ClientConfig clientConfig() throws Exception {
         ClientConfig clientConfig = new ClientConfig();
+        clientConfig.getSerializationConfig().addDataSerializableFactory(1, new ArionDataSerializableFactory());
         if (kubernetesconfig) {
             clientConfig.getNetworkConfig().getKubernetesConfig().setEnabled(true)
                     .setProperty("namespace", namespace)
                     .setProperty("service-name", serviceName);
-            ClientUserCodeDeploymentConfig clientUserCodeDeploymentConfig = new ClientUserCodeDeploymentConfig();
-            clientUserCodeDeploymentConfig.addClass("com.futurewei.arionmaster.model.NeighborRule");
-            clientUserCodeDeploymentConfig.setEnabled(true);
-            clientConfig.setUserCodeDeploymentConfig(clientUserCodeDeploymentConfig);
+
         } else {
             clientConfig
                     .getNetworkConfig()
