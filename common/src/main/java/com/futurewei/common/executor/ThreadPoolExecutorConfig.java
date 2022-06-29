@@ -8,20 +8,25 @@ Copyright(c) 2020 Futurewei Cloud
     to whom the Software is furnished to do so, subject to the following conditions:
 
     The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
+    
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package com.futurewei.arionmaster.service;
 
-import com.futurewei.alcor.schema.Arionmaster;
-import com.futurewei.alcor.schema.Goalstateprovisioner;
+package com.futurewei.common.executor;
 
-import java.util.function.Consumer;
+public class ThreadPoolExecutorConfig {
+    //Core thread pool size
+    public static int corePoolSize = 64;
 
-public interface GoalStatePersistenceService {
-    void goalstateProcess(Arionmaster.NeighborRulesRequest neighborRulesRequest) throws Exception;
-    Arionmaster.NeighborRulesResponse getNeighborRules (Goalstateprovisioner.HostRequest hostRequest);
-    void getNeighborRulesResponse(Goalstateprovisioner.HostRequest hostRequest, Consumer<Arionmaster.NeighborRulesResponse> resConsumer);
+    //Maximum thread pool size
+    public static int maximumPoolSize = 128;
+
+    //Maximum idle time of thread
+    public static int KeepAliveTime = 5000;
+
+    //Queue size of tasks waiting to be executed
+    public static int capacity = 100000;
+
 }

@@ -20,7 +20,13 @@ package com.futurewei.arionmaster.config;
 import com.futurewei.common.model.ArionDataSerializableFactory;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.config.QueryCacheConfig;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.map.IMap;
+import com.hazelcast.map.QueryCache;
+import com.hazelcast.query.Predicate;
+import com.hazelcast.query.PredicateBuilder;
+import com.hazelcast.query.Predicates;
 import com.hazelcast.spring.transaction.HazelcastTransactionManager;
 import com.hazelcast.spring.transaction.ManagedTransactionalTaskContext;
 import com.hazelcast.transaction.TransactionalTaskContext;
@@ -52,12 +58,22 @@ public class ApplicationClientConfig {
     @Value("${arion.hazelcast.clientusercodedeployment:false}")
     private boolean clientUserCodeDeployment;
 
+    @Value("${arion.hazelcast.cachesize:10000}")
+    private int cacheSize;
+
+    public static String mapName = "com.futurewei.common.model.NeighborRule";
+
+    public static String cacheName = "neighborCache";
+
     @Bean
     @Scope("singleton")
     public ClientConfig clientConfig() throws Exception {
         ClientConfig clientConfig = new ClientConfig();
 
         clientConfig.getSerializationConfig().addDataSerializableFactory(ArionDataSerializableFactory.FACTORY_ID, new ArionDataSerializableFactory());
+        QueryCacheConfig queryCacheConfig = new QueryCacheConfig(cacheName);
+        queryCacheConfig.getEvictionConfig().setSize(cacheSize);
+        clientConfig.addQueryCacheConfig(mapName, queryCacheConfig);
         if (kubernetesconfig) {
             clientConfig.getNetworkConfig().getKubernetesConfig().setEnabled(true)
                     .setProperty("namespace", namespace)
@@ -71,6 +87,13 @@ public class ApplicationClientConfig {
         return clientConfig;
     }
 
+    @Bean
+    public QueryCache queryCache(HazelcastInstance hazelcastInstance) {
+        IMap<Integer, Integer> clientMap = (IMap) hazelcastInstance.getMap(mapName);
+        PredicateBuilder.EntryObject e = Predicates.newPredicateBuilder().getEntryObject();
+        QueryCache queryCache = clientMap.getQueryCache(cacheName, e.get("version").greaterEqual(1), true);
+        return queryCache;
+    }
 
     @Bean
     public HazelcastInstance hazelcastInstance(ClientConfig clientConfig) {

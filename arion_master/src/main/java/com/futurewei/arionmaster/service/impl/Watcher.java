@@ -17,21 +17,22 @@ package com.futurewei.arionmaster.service.impl;
 
 import com.futurewei.alcor.schema.Arionmaster;
 import com.futurewei.alcor.schema.Common;
-import com.futurewei.arionmaster.grpc.GrpcServerService;
 import com.futurewei.common.model.NeighborRule;
 import com.futurewei.common.service.NeighborRuleService;
-import com.hazelcast.client.HazelcastClient;
-import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.config.QueryCacheConfig;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import com.hazelcast.map.MapEvent;
+import com.hazelcast.query.Predicate;
+import com.hazelcast.query.PredicateBuilder;
+import com.hazelcast.query.Predicates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Collection;
 import java.util.function.Consumer;
 
 @Service
@@ -43,12 +44,30 @@ public final class Watcher {
 
     public Runnable watch(Arionmaster.ArionWingRequest req, String mapName, String cacheName, Consumer<Arionmaster.NeighborRule> resConsumer) {
         IMap<String, NeighborRule> map = (IMap) hazelcastInstance.getMap(mapName);
-        var cache = map.getQueryCache(cacheName, new NeighborRuleListener(resConsumer), new NeighborRuleService(req.getGroup(), req.getRev()), true);
+        var neighborRuleListener = new NeighborRuleListener(resConsumer);
+        var neighborRules = getNeighborRules(map, req.getGroup(), req.getRev());
+        for (var neighborRule : neighborRules) {
+            try {
+                resConsumer.accept(neighborRuleListener.buildNeighborRule(neighborRule, Common.OperationType.CREATE));
+            } catch (Exception e) {
+                logger.info(e.getMessage());
+            }
+        }
+        var id = map.addEntryListener(neighborRuleListener, new NeighborRuleService(req.getGroup(), req.getRev()), true);
         return () -> {
-            cache.destroy();
+            map.removeEntryListener(id);
         };
     }
+
+    public Collection<NeighborRule> getNeighborRules (IMap neighborRuleMap, String group, long rev) {
+        PredicateBuilder.EntryObject e = Predicates.newPredicateBuilder().getEntryObject();
+        Predicate groupPredicate = e.get("arionGroup").equal(group);
+        Predicate predicate = e.get("version").greaterEqual(rev).and(groupPredicate);
+        return neighborRuleMap.values(predicate);
+    }
 }
+
+
 
 class NeighborRuleListener implements EntryListener {
 
