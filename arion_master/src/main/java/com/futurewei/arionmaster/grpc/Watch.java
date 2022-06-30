@@ -17,6 +17,7 @@ package com.futurewei.arionmaster.grpc;
 
 import com.futurewei.alcor.schema.Arionmaster;
 import com.futurewei.alcor.schema.WatchGrpc;
+import com.futurewei.arionmaster.config.ApplicationClientConfig;
 import com.futurewei.arionmaster.service.impl.Watcher;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -25,12 +26,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 @GrpcService
 public class Watch extends WatchGrpc.WatchImplBase{
 
-
-
-    private String mapName = "com.futurewei.common.model.NeighborRule";
-
     @Autowired
     private Watcher watcher;
+
 
 
     @Override
@@ -39,7 +37,7 @@ public class Watch extends WatchGrpc.WatchImplBase{
             private Runnable cancellation = () -> {};
             @Override
             public void onNext(Arionmaster.ArionWingRequest req) {
-                cancellation = watcher.watch(req, mapName, req.getIp(), r -> {
+                cancellation = watcher.watch(req, ApplicationClientConfig.mapName, req.getIp(), r -> {
                     synchronized (responseObserver) {
                         responseObserver.onNext(r);
                     }

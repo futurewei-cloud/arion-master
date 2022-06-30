@@ -15,13 +15,16 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.arionmaster.service.impl;
 
+import com.futurewei.alcor.schema.Arionmaster;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.common.model.NeighborRule;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
 import com.futurewei.arionmaster.data.NeighborStateRepository;
 import com.futurewei.arionmaster.service.GoalStatePersistenceService;
 import com.futurewei.arionmaster.version.VersionManager;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.datamodel.Tuple2;
+import com.hazelcast.map.QueryCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +33,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 
 @Service
@@ -43,7 +47,14 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
     @Autowired
     private NeighborStateRepository repository;
 
-    public void goalstateProcess(Goalstateprovisioner.NeighborRulesRequest neighborRulesRequest) throws Exception {
+    @Autowired
+    private QueryCache queryCache;
+
+    @Autowired
+    HazelcastInstance hazelcastInstance;
+
+    @Override
+    public void goalstateProcess(Arionmaster.NeighborRulesRequest neighborRulesRequest) throws Exception {
 
         var version = versionManager.getVersion();
         var neighborStates = getNeighborStateList(neighborRulesRequest, version);
@@ -51,7 +62,42 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         if (neighborStates.f1().size() > 0) deleteNeighborState(neighborStates.f1());
     }
 
-    private Tuple2<List<NeighborRule>, List<NeighborRule>> getNeighborStateList(Goalstateprovisioner.NeighborRulesRequest neighborRulesRequest, long version) throws Exception{
+    @Override
+    public void getNeighborRulesResponse(Goalstateprovisioner.HostRequest hostRequest, Consumer<Arionmaster.NeighborRulesResponse> resConsumer) {
+        resConsumer.accept(getNeighborRules(hostRequest));
+    }
+
+    @Override
+    public Arionmaster.NeighborRulesResponse getNeighborRules (Goalstateprovisioner.HostRequest hostRequest) {
+        Arionmaster.NeighborRulesResponse.Builder neighborRuleResponse = Arionmaster.NeighborRulesResponse.newBuilder();
+        for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : hostRequest.getStateRequestsList()) {
+            Arionmaster.NeighborRule.Builder neighborRuleBuilder = Arionmaster.NeighborRule.newBuilder();
+            Arionmaster.NeighborRulesResponse.NeighborRuleReply.Builder neighborRuleReplyBuilder = Arionmaster.NeighborRulesResponse.NeighborRuleReply.newBuilder();
+            var vni = resourceStateRequest.getTunnelId();
+            var neighborIp = resourceStateRequest.getDestinationIp();
+            NeighborRule neighborRule;
+            var key = String.join("-", String.valueOf(vni), neighborIp);
+            if (queryCache.containsKey(key)) {
+                neighborRule = (NeighborRule) queryCache.get(key);
+            } else {
+                neighborRule = repository.findById(key).get();
+            }
+            neighborRuleBuilder.setOperationType(Common.OperationType.INFO);
+            neighborRuleBuilder.setIp(neighborRule.getIp());
+            neighborRuleBuilder.setMac(neighborRule.getMac());
+            neighborRuleBuilder.setArionwingGroup(neighborRule.getArionGroup());
+            neighborRuleBuilder.setHostmac(neighborRule.getHostMac());
+            neighborRuleBuilder.setHostip(neighborRule.getHostIp());
+            neighborRuleBuilder.setTunnelId(neighborRule.getVni());
+            neighborRuleBuilder.setVersion(neighborRule.getVersion());
+            neighborRuleReplyBuilder.setNeighborrule(neighborRuleBuilder.build());
+            neighborRuleReplyBuilder.setRequestId(resourceStateRequest.getRequestId());
+            neighborRuleResponse.addNeighborrules(neighborRuleReplyBuilder.build());
+        }
+        return neighborRuleResponse.build();
+    }
+
+    private Tuple2<List<NeighborRule>, List<NeighborRule>> getNeighborStateList(Arionmaster.NeighborRulesRequest neighborRulesRequest, long version) throws Exception{
         List<NeighborRule> neighborStateUpdateList = new ArrayList<>();
         List<NeighborRule> neighborStateDeleteList = new ArrayList<>();
         AtomicReference<Common.OperationType> operationType = new AtomicReference<>(Common.OperationType.INFO);
