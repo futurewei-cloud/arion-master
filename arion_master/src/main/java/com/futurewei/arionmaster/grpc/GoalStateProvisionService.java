@@ -36,9 +36,9 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicLong;
 
 @GrpcService
-public class AlcorServerService extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
+public class GoalStateProvisionService extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
 
-    private static final Logger logger = LoggerFactory.getLogger(AlcorServerService.class);
+    private static final Logger logger = LoggerFactory.getLogger(GoalStateProvisionService.class);
 
     @Autowired
     private GoalStatePersistenceService goalStateProcess;
