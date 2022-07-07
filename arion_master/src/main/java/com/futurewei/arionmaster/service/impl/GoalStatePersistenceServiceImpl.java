@@ -15,8 +15,8 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.arionmaster.service.impl;
 
-import com.futurewei.alcor.schema.Arionmaster;
-import com.futurewei.alcor.schema.Common;
+import com.futurewei.arion.schema.Arionmaster;
+import com.futurewei.arion.schema.Common;
 import com.futurewei.common.model.NeighborRule;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
 import com.futurewei.arionmaster.data.NeighborStateRepository;
@@ -54,7 +54,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
     HazelcastInstance hazelcastInstance;
 
     @Override
-    public void goalstateProcess(Arionmaster.NeighborRulesRequest neighborRulesRequest) throws Exception {
+    public void goalstateProcess(Goalstateprovisioner.NeighborRulesRequest neighborRulesRequest) throws Exception {
 
         var version = versionManager.getVersion();
         var neighborStates = getNeighborStateList(neighborRulesRequest, version);
@@ -63,14 +63,14 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
     }
 
     @Override
-    public void getNeighborRulesResponse(Goalstateprovisioner.HostRequest hostRequest, Consumer<Arionmaster.NeighborRulesResponse> resConsumer) {
+    public void getNeighborRulesResponse(Arionmaster.HostRequest hostRequest, Consumer<Arionmaster.NeighborRulesResponse> resConsumer) {
         resConsumer.accept(getNeighborRules(hostRequest));
     }
 
     @Override
-    public Arionmaster.NeighborRulesResponse getNeighborRules (Goalstateprovisioner.HostRequest hostRequest) {
+    public Arionmaster.NeighborRulesResponse getNeighborRules (Arionmaster.HostRequest hostRequest) {
         Arionmaster.NeighborRulesResponse.Builder neighborRuleResponse = Arionmaster.NeighborRulesResponse.newBuilder();
-        for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : hostRequest.getStateRequestsList()) {
+        for (Arionmaster.HostRequest.ResourceStateRequest resourceStateRequest : hostRequest.getStateRequestsList()) {
             Arionmaster.NeighborRule.Builder neighborRuleBuilder = Arionmaster.NeighborRule.newBuilder();
             Arionmaster.NeighborRulesResponse.NeighborRuleReply.Builder neighborRuleReplyBuilder = Arionmaster.NeighborRulesResponse.NeighborRuleReply.newBuilder();
             var vni = resourceStateRequest.getTunnelId();
@@ -97,13 +97,11 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         return neighborRuleResponse.build();
     }
 
-    private Tuple2<List<NeighborRule>, List<NeighborRule>> getNeighborStateList(Arionmaster.NeighborRulesRequest neighborRulesRequest, long version) throws Exception{
+    private Tuple2<List<NeighborRule>, List<NeighborRule>> getNeighborStateList(Goalstateprovisioner.NeighborRulesRequest neighborRulesRequest, long version) throws Exception{
         List<NeighborRule> neighborStateUpdateList = new ArrayList<>();
         List<NeighborRule> neighborStateDeleteList = new ArrayList<>();
-        AtomicReference<Common.OperationType> operationType = new AtomicReference<>(Common.OperationType.INFO);
         neighborRulesRequest.getNeigborstatesList()
                 .forEach(neighborState -> {
-                    operationType.set(neighborState.getOperationType());
                     neighborState.getConfiguration().getFixedIpsList().forEach(fixedIp -> {
                         NeighborRule neighborRule = new NeighborRule(
                                 String.join("-", String.valueOf(fixedIp.getTunnelId()), fixedIp.getIpAddress()),
@@ -115,12 +113,12 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
                                 fixedIp.getTunnelId(),
                                 version
                         );
-                        if (operationType.get().equals(Common.OperationType.CREATE)   ||
-                                operationType.get().equals(Common.OperationType.INFO) ||
-                                operationType.get().equals(Common.OperationType.UPDATE)
+                        if (neighborState.getOperationType().equals(com.futurewei.alcor.schema.Common.OperationType.CREATE)   ||
+                                neighborState.getOperationType().equals(com.futurewei.alcor.schema.Common.OperationType.INFO) ||
+                                neighborState.getOperationType().equals(com.futurewei.alcor.schema.Common.OperationType.UPDATE)
                         ) {
                             neighborStateUpdateList.add(neighborRule);
-                        } else if (operationType.get().equals(Common.OperationType.DELETE)) {
+                        } else if (neighborState.getOperationType().equals(com.futurewei.alcor.schema.Common.OperationType.DELETE)) {
                             neighborStateDeleteList.add(neighborRule);
                         }
                     });

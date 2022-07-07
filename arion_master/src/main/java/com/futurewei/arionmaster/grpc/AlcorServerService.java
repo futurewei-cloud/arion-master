@@ -15,7 +15,12 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.arionmaster.grpc;
 
-import com.futurewei.alcor.schema.*;
+
+import com.futurewei.alcor.schema.Common;
+import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
+import com.futurewei.alcor.schema.Goalstateprovisioner;
+import com.futurewei.arion.schema.ArionMasterServiceGrpc;
+import com.futurewei.arion.schema.Arionmaster;
 import com.futurewei.arionmaster.service.GoalStatePersistenceService;
 import com.futurewei.common.executor.AsyncExecutor;
 import io.grpc.stub.StreamObserver;
@@ -31,15 +36,15 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicLong;
 
 @GrpcService
-public class GrpcServerService extends ArionMasterServiceGrpc.ArionMasterServiceImplBase {
+public class AlcorServerService extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
 
-    private static final Logger logger = LoggerFactory.getLogger(GrpcServerService.class);
+    private static final Logger logger = LoggerFactory.getLogger(AlcorServerService.class);
 
     @Autowired
     private GoalStatePersistenceService goalStateProcess;
 
     @Override
-    public void pushGoalstates(Arionmaster.NeighborRulesRequest request, StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
+    public void pushGoalstates(Goalstateprovisioner.NeighborRulesRequest request, StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
         try {
             goalStateProcess.goalstateProcess(request);
 
@@ -58,51 +63,6 @@ public class GrpcServerService extends ArionMasterServiceGrpc.ArionMasterService
             responseObserver.onError(e);
         }
 
-    }
-
-    @Override
-    public void requestGoalstates (Goalstateprovisioner.HostRequest request, StreamObserver<Arionmaster.NeighborRulesResponse> responseObserver) {
-        try {
-            var neighborRuleResponse = goalStateProcess.getNeighborRules(request);
-            responseObserver.onNext(neighborRuleResponse);
-            responseObserver.onCompleted();
-        } catch (Exception e) {
-            logger.info(e.getMessage());
-            responseObserver.onError(e);
-        }
-    }
-
-    @Override
-    public StreamObserver<Goalstateprovisioner.HostRequest> requestGoalstateStream (StreamObserver<Arionmaster.NeighborRulesResponse> responseObserver) {
-        return new StreamObserver<Goalstateprovisioner.HostRequest>() {
-            @Override
-            public void onNext(Goalstateprovisioner.HostRequest hostRequest) {
-                CompletableFuture future = CompletableFuture.supplyAsync(() -> {
-                    try {
-                        goalStateProcess.getNeighborRulesResponse(hostRequest, r -> {
-                            synchronized (responseObserver) {
-                                responseObserver.onNext(r);
-                            }
-                        });
-                    } catch (Exception e) {
-                        throw new CompletionException(e);
-                    }
-                    return null;
-
-                }, AsyncExecutor.executor);
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                logger.info(throwable.getMessage());
-                responseObserver.onError(throwable);
-            }
-
-            @Override
-            public void onCompleted() {
-                responseObserver.onCompleted();
-            }
-        };
     }
 }
 
