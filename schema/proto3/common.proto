@@ -8,20 +8,73 @@ Copyright(c) 2020 Futurewei Cloud
     to whom the Software is furnished to do so, subject to the following conditions:
 
     The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
+    
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package com.futurewei.arionmaster.service;
 
-import com.futurewei.alcor.schema.Goalstateprovisioner;
-import com.futurewei.arion.schema.Arionmaster;
+syntax = "proto3";
 
-import java.util.function.Consumer;
+package arion.schema;
 
-public interface GoalStatePersistenceService {
-    void goalstateProcess(Goalstateprovisioner.NeighborRulesRequest neighborRulesRequest) throws Exception;
-    Arionmaster.NeighborRulesResponse getNeighborRules (Arionmaster.HostRequest hostRequest);
-    void getNeighborRulesResponse(Arionmaster.HostRequest hostRequest, Consumer<Arionmaster.NeighborRulesResponse> resConsumer);
+option java_package = "com.futurewei.arion.schema";
+option java_outer_classname = "Common";
+
+enum ResourceType {
+    VPC = 0;
+    SUBNET = 1;
+    PORT = 2;
+    NEIGHBOR = 3;
+    SECURITYGROUP = 4;
+    DHCP = 5;
+    ROUTER = 6;
+    GATEWAY = 7;
+}
+
+enum OperationType {
+    INFO = 0;
+    CREATE = 1;
+    UPDATE = 2;
+    GET = 3;
+    DELETE = 4;
+}
+
+enum OperationStatus {
+    SUCCESS = 0; // also means ROUTABLE for ON_DEMAND request
+    FAILURE = 1; // also means NOT_ROUTABLE for ON_DEMAND request
+    INVALID_ARG = 2;
+    PENDING = 3;
+    OUT_OF_ORDER = 4;
+}
+
+enum RequestType {
+    ON_DEMAND = 0;
+    AGENT_RESTARTED = 1;
+}
+
+enum EtherType {
+    IPV4 = 0;
+    IPV6 = 1;
+}
+
+enum Protocol {
+    TCP = 0;
+    UDP = 1;
+    ICMP = 2;
+    HTTP = 3;
+    ARP = 4;
+}
+
+enum NetworkType { 
+    VXLAN = 0; // the default type
+    VLAN = 1;
+    GRE = 2;
+    GENEVE = 3;
+    VXLAN_GPE = 4;
+}
+
+enum UpdateType { 
+    DELTA = 0; // the default type
+    FULL = 1;
 }

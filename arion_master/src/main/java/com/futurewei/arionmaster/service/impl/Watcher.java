@@ -15,8 +15,8 @@ Copyright(c) 2022 Futurewei Cloud
 */
 package com.futurewei.arionmaster.service.impl;
 
-import com.futurewei.alcor.schema.Arionmaster;
-import com.futurewei.alcor.schema.Common;
+import com.futurewei.arion.schema.Arionmaster;
+import com.futurewei.arion.schema.Common;
 import com.futurewei.common.model.NeighborRule;
 import com.futurewei.common.service.NeighborRuleService;
 import com.hazelcast.core.EntryEvent;

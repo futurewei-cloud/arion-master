@@ -37,6 +37,7 @@
     <modules>
         <module>arion_master</module>
         <module>common</module>
+        <module>schema</module>
     </modules>
 
     <build>

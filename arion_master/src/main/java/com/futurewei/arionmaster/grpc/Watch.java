@@ -15,8 +15,8 @@ Copyright(c) 2022 Futurewei Cloud
 */
 package com.futurewei.arionmaster.grpc;
 
-import com.futurewei.alcor.schema.Arionmaster;
-import com.futurewei.alcor.schema.WatchGrpc;
+import com.futurewei.arion.schema.Arionmaster;
+import com.futurewei.arion.schema.WatchGrpc;
 import com.futurewei.arionmaster.config.ApplicationClientConfig;
 import com.futurewei.arionmaster.service.impl.Watcher;
 import io.grpc.stub.StreamObserver;
@@ -28,8 +28,6 @@ public class Watch extends WatchGrpc.WatchImplBase{
 
     @Autowired
     private Watcher watcher;
-
-
 
     @Override
     public StreamObserver<Arionmaster.ArionWingRequest> watch(final StreamObserver<Arionmaster.NeighborRule> responseObserver) {
