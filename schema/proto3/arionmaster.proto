@@ -23,7 +23,6 @@ option java_package = "com.futurewei.arion.schema";
 import "common.proto";
 
 service ArionMasterService {
-
   rpc RequestGoalstates (HostRequest) returns (NeighborRulesResponse) {
   }
 
