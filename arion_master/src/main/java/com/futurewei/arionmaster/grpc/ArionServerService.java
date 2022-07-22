@@ -14,7 +14,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 @GrpcService
-
 public class ArionServerService extends ArionMasterServiceGrpc.ArionMasterServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(ArionServerService.class);
 
