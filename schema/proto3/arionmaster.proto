@@ -21,12 +21,8 @@ package arion.schema;
 option java_package = "com.futurewei.arion.schema";
 
 import "common.proto";
-import "neighbor.proto";
 
 service ArionMasterService {
-
-  rpc PushGoalstates (NeighborRulesRequest) returns (GoalStateOperationReply) {
-  }
 
   rpc RequestGoalstates (HostRequest) returns (NeighborRulesResponse) {
   }
@@ -60,13 +56,6 @@ message NeighborRule {
   string hostmac = 6;
   string arionwing_group = 7;
   uint64 version = 8;
-}
-
-message NeighborRulesRequest {
-  uint32 format_version = 1;
-  string request_id = 2;
-
-  repeated NeighborState neigborstates = 3;
 }
 
 message NeighborRulesResponse {
