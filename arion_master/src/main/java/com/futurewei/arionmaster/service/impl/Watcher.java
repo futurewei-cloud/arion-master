@@ -136,6 +136,7 @@ class NeighborRuleListener implements EntryListener {
         neighborRuleBuilder.setHostip(neighborRule.getHostIp());
         neighborRuleBuilder.setHostmac(neighborRule.getHostMac());
         neighborRuleBuilder.setArionwingGroup(neighborRule.getArionGroup());
+        neighborRuleBuilder.setTunnelId(neighborRule.getVni());
         neighborRuleBuilder.setVersion(neighborRule.getVersion());
         return neighborRuleBuilder.build();
     }

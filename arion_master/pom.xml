@@ -121,6 +121,7 @@
         <dependency>
             <groupId>com.github.futurewei-cloud</groupId>
             <artifactId>alcor</artifactId>
+            <version>bfdbd34f4dee79e068ed353bce4d31045908b2d8</version>
             <exclusions>
                 <exclusion>  <!-- declare the exclusion here -->
                     <groupId>*</groupId>
