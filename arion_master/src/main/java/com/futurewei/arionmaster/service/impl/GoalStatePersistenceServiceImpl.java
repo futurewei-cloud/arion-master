@@ -105,9 +105,9 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
                     neighborState.getConfiguration().getFixedIpsList().forEach(fixedIp -> {
                         NeighborRule neighborRule = new NeighborRule(
                                 String.join("-", String.valueOf(fixedIp.getTunnelId()), fixedIp.getIpAddress()),
-                                fixedIp.getMacAddress(),
-                                fixedIp.getArionGroup(),
                                 neighborState.getConfiguration().getMacAddress(),
+                                fixedIp.getArionGroup(),
+                                neighborState.getConfiguration().getHostMacAddress(),
                                 neighborState.getConfiguration().getHostIpAddress(),
                                 fixedIp.getIpAddress(),
                                 fixedIp.getTunnelId(),
