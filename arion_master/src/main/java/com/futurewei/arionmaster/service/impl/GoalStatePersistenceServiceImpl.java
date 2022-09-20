@@ -32,7 +32,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 
@@ -50,14 +49,9 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
     @Autowired
     private QueryCache queryCache;
 
-    @Autowired
-    HazelcastInstance hazelcastInstance;
-
     @Override
     public void goalstateProcess(Goalstateprovisioner.NeighborRulesRequest neighborRulesRequest) throws Exception {
-
-        var version = versionManager.getVersion();
-        var neighborStates = getNeighborStateList(neighborRulesRequest, version);
+        var neighborStates = getNeighborStateList(neighborRulesRequest);
         if (neighborStates.f0().size() > 0) updateNeighborState(neighborStates.f0());
         if (neighborStates.f1().size() > 0) deleteNeighborState(neighborStates.f1());
     }
@@ -97,12 +91,13 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         return neighborRuleResponse.build();
     }
 
-    private Tuple2<List<NeighborRule>, List<NeighborRule>> getNeighborStateList(Goalstateprovisioner.NeighborRulesRequest neighborRulesRequest, long version) throws Exception{
+    private Tuple2<List<NeighborRule>, List<NeighborRule>> getNeighborStateList(Goalstateprovisioner.NeighborRulesRequest neighborRulesRequest) throws Exception{
         List<NeighborRule> neighborStateUpdateList = new ArrayList<>();
         List<NeighborRule> neighborStateDeleteList = new ArrayList<>();
         neighborRulesRequest.getNeigborstatesList()
                 .forEach(neighborState -> {
                     neighborState.getConfiguration().getFixedIpsList().forEach(fixedIp -> {
+                        var version = versionManager.getVersion(fixedIp.getArionGroup());
                         NeighborRule neighborRule = new NeighborRule(
                                 String.join("-", String.valueOf(fixedIp.getTunnelId()), fixedIp.getIpAddress()),
                                 neighborState.getConfiguration().getMacAddress(),

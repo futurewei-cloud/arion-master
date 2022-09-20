@@ -18,7 +18,7 @@ package com.futurewei.arionmaster.grpc;
 import com.futurewei.arion.schema.Arionmaster;
 import com.futurewei.arion.schema.WatchGrpc;
 import com.futurewei.arionmaster.config.ApplicationClientConfig;
-import com.futurewei.arionmaster.service.impl.Watcher;
+import com.futurewei.arionmaster.service.Watcher;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
