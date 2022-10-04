@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.4</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.example</groupId>
+    <artifactId>banchmark</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>banchmark</name>
+    <description>banchmark</description>
+    <properties>
+        <java.version>17</java.version>
+        <repackage.classifier/>
+        <spring-native.version>0.12.1</spring-native.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.devh</groupId>
+            <artifactId>grpc-spring-boot-starter</artifactId>
+            <version>2.13.1.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.experimental</groupId>
+            <artifactId>spring-native</artifactId>
+            <version>${spring-native.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.futurewei.arion</groupId>
+            <artifactId>common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.futurewei-cloud</groupId>
+            <artifactId>alcor</artifactId>
+            <version>7fc2c248255c84b6a0fa5c505befe26a7b218072</version>
+            <exclusions>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>apigateway</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>common</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>dataplanemanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>elasticipmanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>gatewaymanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>macmanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>network-acl-manager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>networkconfigmanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>nodemanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>portmanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>privateipmanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>pseudo_controller</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>quotamanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>routemanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>securitygroupmanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>subnetmanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>vpcmanager</artifactId>
+                </exclusion>
+                <exclusion>  <!-- declare the exclusion here -->
+                    <groupId>*</groupId>
+                    <artifactId>web</artifactId>
+                </exclusion>
+
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skip>false</skip>
+                    <systemPropertyVariables>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <!-- attached to Maven test phase -->
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+            <id>spring-releases</id>
+            <name>Spring Releases</name>
+            <url>https://repo.spring.io/release</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-releases</id>
+            <name>Spring Releases</name>
+            <url>https://repo.spring.io/release</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+</project>
