@@ -13,10 +13,21 @@ Copyright(c) 2022 Futurewei Cloud
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+package com.futurewei.banchmark.utils;
 
-package com.futurewei.arionmaster.version;
+import com.futurewei.common.executor.ThreadPoolExecutorConfig;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-public interface VersionManager {
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-    public long getVersion(String group);
+public class ThreadPoolExecutorUtils {
+    public static final ThreadPoolExecutor SELECT_POOL_EXECUTOR = new ThreadPoolExecutor(
+            ThreadPoolExecutorConfig.corePoolSize,
+            ThreadPoolExecutorConfig.maximumPoolSize,
+            ThreadPoolExecutorConfig.KeepAliveTime,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(ThreadPoolExecutorConfig.capacity),
+            new ThreadFactoryBuilder().setNameFormat("selectThreadPoolExecutor-%d").build());
 }

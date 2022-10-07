@@ -14,9 +14,37 @@ Copyright(c) 2022 Futurewei Cloud
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-package com.futurewei.arionmaster.version;
+package com.futurewei.banchmark;
 
-public interface VersionManager {
+import com.futurewei.banchmark.service.ArionmasterTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-    public long getVersion(String group);
+@SpringBootApplication
+public class BanchmarkApplication implements CommandLineRunner {
+
+
+    @Autowired
+    private ArionmasterTest arionmasterTest;
+
+    public static void main(String[] args) {
+        SpringApplication.run(BanchmarkApplication.class, args);
+    }
+
+
+    @Override
+    public void run(String... args) throws InterruptedException {
+        if (args[0].equals("batchInsert"))
+        {
+            arionmasterTest.bulkInsertNeighborRule();
+        }
+        else
+        {
+            arionmasterTest.insertNeighborRule();
+        }
+
+    }
+
 }
