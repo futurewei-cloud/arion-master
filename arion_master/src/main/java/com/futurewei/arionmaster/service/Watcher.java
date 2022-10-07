@@ -10,9 +10,12 @@ Copyright(c) 2022 Futurewei Cloud
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package com.futurewei.arionmaster.version;
+package com.futurewei.arionmaster.service;
 
-public interface VersionManager {
+import com.futurewei.arion.schema.Arionmaster;
 
-    public long getVersion(String group);
+import java.util.function.Consumer;
+
+public interface Watcher {
+    Runnable watch(Arionmaster.ArionWingRequest req, String mapName, String cacheName, Consumer<Arionmaster.NeighborRule> resConsumer);
 }

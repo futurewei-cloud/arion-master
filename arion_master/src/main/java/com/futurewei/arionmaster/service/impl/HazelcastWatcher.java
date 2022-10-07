@@ -17,6 +17,7 @@ package com.futurewei.arionmaster.service.impl;
 
 import com.futurewei.arion.schema.Arionmaster;
 import com.futurewei.arion.schema.Common;
+import com.futurewei.arionmaster.service.Watcher;
 import com.futurewei.common.model.NeighborRule;
 import com.futurewei.common.service.NeighborRuleService;
 import com.hazelcast.core.EntryEvent;
@@ -30,13 +31,15 @@ import com.hazelcast.query.Predicates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.function.Consumer;
 
 @Service
-public final class Watcher {
+@ConditionalOnProperty(prefix = "arion.db", name = "dbname", havingValue = "hazelcast")
+public final class HazelcastWatcher implements Watcher {
 
     private static final Logger logger = LoggerFactory.getLogger(Watcher.class);
 
