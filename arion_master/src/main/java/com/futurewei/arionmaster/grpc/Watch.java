@@ -27,15 +27,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class Watch extends WatchGrpc.WatchImplBase{
 
     @Autowired
-    private Watcher watcher;
+    private Watcher hazelcastWatcher;
 
     @Override
-    public StreamObserver<Arionmaster.ArionWingRequest> watch(final StreamObserver<Arionmaster.NeighborRule> responseObserver) {
+    public StreamObserver<Arionmaster.ArionWingRequest> watch(final StreamObserver<Arionmaster.ArionWingResponse> responseObserver) {
         return new StreamObserver<Arionmaster.ArionWingRequest>() {
             private Runnable cancellation = () -> {};
             @Override
             public void onNext(Arionmaster.ArionWingRequest req) {
-                cancellation = watcher.watch(req, ApplicationClientConfig.mapName, req.getIp(), r -> {
+                cancellation = hazelcastWatcher.watch(req, r -> {
                     synchronized (responseObserver) {
                         responseObserver.onNext(r);
                     }

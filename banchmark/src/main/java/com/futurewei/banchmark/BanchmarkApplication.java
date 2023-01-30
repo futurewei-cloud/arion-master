@@ -16,7 +16,8 @@ Copyright(c) 2022 Futurewei Cloud
 
 package com.futurewei.banchmark;
 
-import com.futurewei.banchmark.service.ArionmasterTest;
+import com.futurewei.banchmark.service.ArionmasterNeighborRuleTest;
+import com.futurewei.banchmark.service.ArionmasterSecurityGroupTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -27,7 +28,10 @@ public class BanchmarkApplication implements CommandLineRunner {
 
 
     @Autowired
-    private ArionmasterTest arionmasterTest;
+    private ArionmasterNeighborRuleTest arionmasterNeighborRuleTest;
+
+    @Autowired
+    private ArionmasterSecurityGroupTest arionmasterSecurityGroupTest;
 
     public static void main(String[] args) {
         SpringApplication.run(BanchmarkApplication.class, args);
@@ -36,13 +40,20 @@ public class BanchmarkApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws InterruptedException {
-        if (args[0].equals("batchInsert"))
+        if (args.length > 0 && args[0].equals("neighborrule"))
         {
-            arionmasterTest.bulkInsertNeighborRule();
+            if (args[1].equals("batchInsert")) {
+                arionmasterNeighborRuleTest.bulkInsertNeighborRule();
+            } else {
+                arionmasterNeighborRuleTest.insertNeighborRule();
+            }
         }
-        else
+        else if (args.length > 0 && args[0].equals("securitygroupportbinding"))
         {
-            arionmasterTest.insertNeighborRule();
+            System.out.println("test");
+            arionmasterSecurityGroupTest.insertSecurityGroup();
+        } else {
+
         }
 
     }

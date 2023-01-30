@@ -35,13 +35,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Service
-public class ArionmasterTest {
+public class ArionmasterNeighborRuleTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArionmasterTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(ArionmasterNeighborRuleTest.class);
 
     @Value("${alcor.vpc.size:1}")
     private int vpcSize;
@@ -73,7 +72,7 @@ public class ArionmasterTest {
                     String ip = String.join(".", "10", String.valueOf(i), String.valueOf(j), String.valueOf(m));
                     CompletableFuture<String> vpcFuture = CompletableFuture.supplyAsync(() -> {
                         try {
-                            var neighborStateRequestBuilder = Goalstateprovisioner.NeighborRulesRequest.newBuilder();
+                            var neighborStateRequestBuilder = Goalstateprovisioner.ArionGoalStateRequest.newBuilder();
                             List<Neighbor.NeighborState> neighborStateList = new ArrayList<>();
                             neighborStateList.add(buildNeighborState(ip));
                             neighborStateRequestBuilder.addAllNeigborstates(neighborStateList);
@@ -119,7 +118,7 @@ public class ArionmasterTest {
             for (int j = 1; j <= neighborSize; j++) {
                 CompletableFuture<String> vpcFuture = CompletableFuture.supplyAsync(() -> {
                     try {
-                        var neighborStateRequestBuilder = Goalstateprovisioner.NeighborRulesRequest.newBuilder();
+                        var neighborStateRequestBuilder = Goalstateprovisioner.ArionGoalStateRequest.newBuilder();
                         List<Neighbor.NeighborState> neighborStateList = new ArrayList<>();
                         neighborStateList.add(buildNeighborState(getRandomIpv4Address()));
                         neighborStateRequestBuilder.addAllNeigborstates(neighborStateList);

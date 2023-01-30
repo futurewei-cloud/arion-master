@@ -15,13 +15,18 @@ Copyright(c) 2022 Futurewei Cloud
 */
 package com.futurewei.arionmaster.service.impl;
 
+import com.futurewei.alcor.schema.SecurityGroup;
 import com.futurewei.arion.schema.Arionmaster;
 import com.futurewei.arion.schema.Common;
+import com.futurewei.arionmaster.data.SecurityGroupPortBindingRepository;
+import com.futurewei.arionmaster.data.SecurityGroupRuleRepository;
 import com.futurewei.common.model.NeighborRule;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
 import com.futurewei.arionmaster.data.NeighborStateRepository;
 import com.futurewei.arionmaster.service.GoalStatePersistenceService;
 import com.futurewei.arionmaster.version.VersionManager;
+import com.futurewei.common.model.SecurityGroupPortBinding;
+import com.futurewei.common.model.SecurityGroupRule;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.datamodel.Tuple2;
 import com.hazelcast.map.QueryCache;
@@ -44,16 +49,32 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
     private VersionManager versionManager;
 
     @Autowired
-    private NeighborStateRepository repository;
+    private NeighborStateRepository neighborStateRepository;
 
     @Autowired
-    private QueryCache queryCache;
+    private SecurityGroupPortBindingRepository securityGroupPortBindingRepository;
+
+    @Autowired
+    private SecurityGroupRuleRepository securityGroupRuleRepository;
+
+    @Autowired
+    private QueryCache neighborQueryCache;
 
     @Override
-    public void goalstateProcess(Goalstateprovisioner.NeighborRulesRequest neighborRulesRequest) throws Exception {
-        var neighborStates = getNeighborStateList(neighborRulesRequest);
+    public void goalstateProcess(Goalstateprovisioner.ArionGoalStateRequest arionGoalStateRequest) throws Exception {
+        var neighborStates = getNeighborStateList(arionGoalStateRequest);
         if (neighborStates.f0().size() > 0) updateNeighborState(neighborStates.f0());
         if (neighborStates.f1().size() > 0) deleteNeighborState(neighborStates.f1());
+        var securityGroupPortBinding = getSecurityGroupPortBinding(arionGoalStateRequest);
+        if (securityGroupPortBinding.f0().size() > 0) updateSecurityGroupPortBinding(securityGroupPortBinding.f0());
+        if (securityGroupPortBinding.f1().size() > 0) deleteSecurityGroupPortBinding(securityGroupPortBinding.f1());
+    }
+
+    @Override
+    public void goalstateProcess(SecurityGroup.SecurityGroupState securityGroupState) throws Exception {
+        var securityGroupStates = getSecurityGroupRules(securityGroupState);
+        if (securityGroupStates.f0().size() > 0) updateSecurityGroupState(securityGroupStates.f0());
+        if (securityGroupStates.f1().size() > 0) deleteSecurityGroupState(securityGroupStates.f1());
     }
 
     @Override
@@ -71,10 +92,10 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
             var neighborIp = resourceStateRequest.getDestinationIp();
             NeighborRule neighborRule;
             var key = String.join("-", String.valueOf(vni), neighborIp);
-            if (queryCache.containsKey(key)) {
-                neighborRule = (NeighborRule) queryCache.get(key);
+            if (neighborQueryCache.containsKey(key)) {
+                neighborRule = (NeighborRule) neighborQueryCache.get(key);
             } else {
-                neighborRule = repository.findById(key).get();
+                neighborRule = neighborStateRepository.findById(key).get();
             }
             neighborRuleBuilder.setOperationType(Common.OperationType.INFO);
             neighborRuleBuilder.setIp(neighborRule.getIp());
@@ -91,10 +112,10 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         return neighborRuleResponse.build();
     }
 
-    private Tuple2<List<NeighborRule>, List<NeighborRule>> getNeighborStateList(Goalstateprovisioner.NeighborRulesRequest neighborRulesRequest) throws Exception{
+    private Tuple2<List<NeighborRule>, List<NeighborRule>> getNeighborStateList(Goalstateprovisioner.ArionGoalStateRequest arionGoalStateRequest) throws Exception{
         List<NeighborRule> neighborStateUpdateList = new ArrayList<>();
         List<NeighborRule> neighborStateDeleteList = new ArrayList<>();
-        neighborRulesRequest.getNeigborstatesList()
+        arionGoalStateRequest.getNeigborstatesList()
                 .forEach(neighborState -> {
                     neighborState.getConfiguration().getFixedIpsList().forEach(fixedIp -> {
                         var version = versionManager.getVersion(fixedIp.getArionGroup());
@@ -123,7 +144,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
 
     private void updateNeighborState (List<NeighborRule> neighborStateList) {
         try {
-            repository.saveAll(neighborStateList);
+            neighborStateRepository.saveAll(neighborStateList);
         } catch (Exception e) {
             throw e;
         }
@@ -131,7 +152,94 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
 
     private void deleteNeighborState (List<NeighborRule> neighborStateList) {
         try {
-            repository.deleteAll(neighborStateList);
+            neighborStateRepository.deleteAll(neighborStateList);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    private Tuple2<List<SecurityGroupPortBinding>, List<SecurityGroupPortBinding>> getSecurityGroupPortBinding(Goalstateprovisioner.ArionGoalStateRequest arionGoalStateRequest) throws Exception{
+        List<SecurityGroupPortBinding> securityGroupPortBindingList = new ArrayList<>();
+        List<SecurityGroupPortBinding> securityGroupPortBindingList1 = new ArrayList<>();
+        arionGoalStateRequest.getPortstatesList()
+                .forEach(portState -> {
+                    portState.getConfiguration().getSecurityGroupIdsList().forEach(securityGroupId -> {
+                        var version = versionManager.getVersion("securitygroup");
+                        SecurityGroupPortBinding securityGroupPortBinding = new SecurityGroupPortBinding();
+                        securityGroupPortBinding.setId(String.join("-", portState.getConfiguration().getId(), securityGroupId.getId()));
+                        securityGroupPortBinding.setSecurityGroupId(securityGroupId.getId());
+                        securityGroupPortBinding.setPortId(portState.getConfiguration().getId());
+                        securityGroupPortBinding.setVersion(version);
+                        if (portState.getOperationType().equals(com.futurewei.alcor.schema.Common.OperationType.CREATE) ||
+                                portState.getOperationType().equals(com.futurewei.alcor.schema.Common.OperationType.UPDATE) ||
+                                portState.getOperationType().equals(com.futurewei.alcor.schema.Common.OperationType.INFO)
+                        ) {
+                            securityGroupPortBindingList.add(securityGroupPortBinding);
+                        } else if (portState.getOperationType().equals(com.futurewei.alcor.schema.Common.OperationType.DELETE)) {
+                            securityGroupPortBindingList1.add(securityGroupPortBinding);
+                        }
+                    });
+                });
+        return Tuple2.tuple2(securityGroupPortBindingList, securityGroupPortBindingList1);
+    }
+
+    private void updateSecurityGroupPortBinding (List<SecurityGroupPortBinding> securityGroupPortBindingList) {
+        try {
+            securityGroupPortBindingRepository.saveAll(securityGroupPortBindingList);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    private void deleteSecurityGroupPortBinding (List<SecurityGroupPortBinding> securityGroupPortBindingList) {
+        try {
+            securityGroupPortBindingRepository.deleteAll(securityGroupPortBindingList);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    private Tuple2<List<SecurityGroupRule>, List<SecurityGroupRule>> getSecurityGroupRules(SecurityGroup.SecurityGroupState securityGroupState) throws Exception{
+        List<SecurityGroupRule> securityGroupStateUpdateList = new ArrayList<>();
+        List<SecurityGroupRule> securityGroupStateDeleteList = new ArrayList<>();
+        securityGroupState.getConfiguration().getSecurityGroupRulesList()
+                        .forEach(securityGroupRule -> {
+                            var version = versionManager.getVersion("securitygrouprule");
+                            SecurityGroupRule securityGroupRule1 = new SecurityGroupRule();
+                            securityGroupRule1.setSecurityGroupId(securityGroupRule.getSecurityGroupId());
+                            securityGroupRule1.setRemoteGroupId(securityGroupRule.getRemoteGroupId());
+                            securityGroupRule1.setDirection(securityGroupRule.getDirection().toString());
+                            securityGroupRule1.setRemoteIpPrefix(securityGroupRule.getRemoteIpPrefix());
+                            securityGroupRule1.setProtocol(securityGroupRule.getProtocol().toString());
+                            securityGroupRule1.setPortRangeMax(securityGroupRule.getPortRangeMax());
+                            securityGroupRule1.setPortRangeMin(securityGroupRule.getPortRangeMin());
+                            securityGroupRule1.setEthertype(securityGroupRule.getEthertype().toString());
+                            securityGroupRule1.setVni(Integer.parseInt(securityGroupState.getConfiguration().getVpcId()));
+                            securityGroupRule1.setVersion(version);
+                            if (securityGroupState.getOperationType().equals(com.futurewei.alcor.schema.Common.OperationType.CREATE)   ||
+                                    securityGroupState.getOperationType().equals(com.futurewei.alcor.schema.Common.OperationType.INFO) ||
+                                    securityGroupState.getOperationType().equals(com.futurewei.alcor.schema.Common.OperationType.UPDATE)
+                            ) {
+                                securityGroupStateUpdateList.add(securityGroupRule1);
+                            } else if (securityGroupState.getOperationType().equals(com.futurewei.alcor.schema.Common.OperationType.DELETE)) {
+                                securityGroupStateDeleteList.add(securityGroupRule1);
+                            }
+                        });
+
+        return Tuple2.tuple2(securityGroupStateUpdateList, securityGroupStateDeleteList);
+    }
+
+    private void updateSecurityGroupState (List<SecurityGroupRule> securityGroupRuleList) {
+        try {
+            securityGroupRuleRepository.saveAll(securityGroupRuleList);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    private void deleteSecurityGroupState (List<SecurityGroupRule> securityGroupRuleList) {
+        try {
+            securityGroupRuleRepository.deleteAll(securityGroupRuleList);
         } catch (Exception e) {
             throw e;
         }

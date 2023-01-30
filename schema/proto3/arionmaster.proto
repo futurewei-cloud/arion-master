@@ -23,27 +23,35 @@ option java_package = "com.futurewei.arion.schema";
 import "common.proto";
 
 service ArionMasterService {
+
   rpc RequestGoalstates (HostRequest) returns (NeighborRulesResponse) {
   }
 
   rpc RequestGoalstateStream (stream HostRequest) returns (stream NeighborRulesResponse) {
   }
+
 }
 
 service Watch {
 
-  rpc Watch (stream ArionWingRequest) returns (stream NeighborRule) {
+  rpc Watch (stream ArionWingRequest) returns (stream ArionWingResponse) {
   }
+
 }
 
 message ArionWingRequest {
-  string vni = 1;
-  string ip = 2;
-  uint64 rev = 3;
-  string group = 4;
+  uint64 rev = 1;
+  string group = 2;
+  string map = 3;
 }
 
-
+message ArionWingResponse {
+  oneof rule {
+    NeighborRule neighbor_rule = 1;
+    SecurityGroupPortBinding securitygroupportbinding = 2;
+    SecurityGroupRule securitygrouprule = 3;
+  }
+}
 
 message NeighborRule {
   OperationType operation_type = 1;
@@ -55,6 +63,29 @@ message NeighborRule {
   string hostmac = 6;
   string arionwing_group = 7;
   uint64 version = 8;
+}
+
+message SecurityGroupPortBinding {
+  OperationType operation_type = 1;
+
+  string portid = 2;
+  string securitygroupid = 3;
+  uint64 version = 4;
+}
+
+message SecurityGroupRule {
+  OperationType operation_type = 1;
+
+  string securitygroupid = 2;
+  string remotegroupid = 3;
+  string direction = 4;
+  string remoteipprefix = 5;
+  string protocol = 6;
+  int32 portrangemax = 7;
+  int32 portrangemin = 8;
+  string ethertype = 9;
+  uint32 vni = 10;
+  uint64 version = 11;
 }
 
 message NeighborRulesResponse {

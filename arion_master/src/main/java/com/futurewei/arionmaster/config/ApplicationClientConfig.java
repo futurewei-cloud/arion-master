@@ -61,19 +61,36 @@ public class ApplicationClientConfig {
     @Value("${arion.hazelcast.cachesize:10000}")
     private int cacheSize;
 
-    public static String mapName = "com.futurewei.common.model.NeighborRule";
+    public static String neighborMapName = "com.futurewei.common.model.NeighborRule";
 
-    public static String cacheName = "neighborCache";
+    public static String securityGroupPortBindingMapName = "com.futurewei.common.model.SecurityGroupPortBinding";
+
+    public static String securityGroupRulesMapName = "com.futurewei.common.model.SecurityGroupRule";
+
+    public static String neighborCacheName = "neighborCache";
+
+    public static String securityGroupPortBindingCacheName = "securityGroupPortBindingCache";
+
+    public static String securityGroupRulesCacheName = "securityGroupRulesCache";
 
     @Bean
     @Scope("singleton")
     public ClientConfig clientConfig() throws Exception {
         ClientConfig clientConfig = new ClientConfig();
-
         clientConfig.getSerializationConfig().addDataSerializableFactory(ArionDataSerializableFactory.FACTORY_ID, new ArionDataSerializableFactory());
-        QueryCacheConfig queryCacheConfig = new QueryCacheConfig(cacheName);
-        queryCacheConfig.getEvictionConfig().setSize(cacheSize);
-        clientConfig.addQueryCacheConfig(mapName, queryCacheConfig);
+
+        QueryCacheConfig neighborQueryCacheConfig = new QueryCacheConfig(neighborCacheName);
+        neighborQueryCacheConfig.getEvictionConfig().setSize(cacheSize);
+        clientConfig.addQueryCacheConfig(neighborMapName, neighborQueryCacheConfig);
+
+        QueryCacheConfig securityGroupPortBindingQueryCacheConfig = new QueryCacheConfig(securityGroupPortBindingCacheName);
+        securityGroupPortBindingQueryCacheConfig.getEvictionConfig().setSize(cacheSize);
+        clientConfig.addQueryCacheConfig(securityGroupPortBindingMapName, securityGroupPortBindingQueryCacheConfig);
+
+        QueryCacheConfig securityGroupRulesQueryCacheConfig = new QueryCacheConfig(securityGroupRulesCacheName);
+        securityGroupRulesQueryCacheConfig.getEvictionConfig().setSize(cacheSize);
+        clientConfig.addQueryCacheConfig(securityGroupRulesMapName, securityGroupRulesQueryCacheConfig);
+
         if (kubernetesconfig) {
             clientConfig.getNetworkConfig().getKubernetesConfig().setEnabled(true)
                     .setProperty("namespace", namespace)
@@ -88,10 +105,26 @@ public class ApplicationClientConfig {
     }
 
     @Bean
-    public QueryCache queryCache(HazelcastInstance hazelcastInstance) {
-        IMap<Integer, Integer> clientMap = (IMap) hazelcastInstance.getMap(mapName);
+    public QueryCache neighborQueryCache(HazelcastInstance hazelcastInstance) {
+        IMap<Integer, Integer> clientMap = (IMap) hazelcastInstance.getMap(neighborMapName);
         PredicateBuilder.EntryObject e = Predicates.newPredicateBuilder().getEntryObject();
-        QueryCache queryCache = clientMap.getQueryCache(cacheName, e.get("version").greaterEqual(1), true);
+        QueryCache queryCache = clientMap.getQueryCache(neighborCacheName, e.get("version").greaterEqual(1), true);
+        return queryCache;
+    }
+
+    @Bean
+    public QueryCache securityGroupPortBindingQueryCache(HazelcastInstance hazelcastInstance) {
+        IMap<Integer, Integer> clientMap = (IMap) hazelcastInstance.getMap(securityGroupPortBindingMapName);
+        PredicateBuilder.EntryObject e = Predicates.newPredicateBuilder().getEntryObject();
+        QueryCache queryCache = clientMap.getQueryCache(securityGroupPortBindingCacheName, e.get("version").greaterEqual(1), true);
+        return queryCache;
+    }
+
+    @Bean
+    public QueryCache securityGroupRulesQueryCache(HazelcastInstance hazelcastInstance) {
+        IMap<Integer, Integer> clientMap = (IMap) hazelcastInstance.getMap(securityGroupRulesMapName);
+        PredicateBuilder.EntryObject e = Predicates.newPredicateBuilder().getEntryObject();
+        QueryCache queryCache = clientMap.getQueryCache(securityGroupRulesCacheName, e.get("version").greaterEqual(1), true);
         return queryCache;
     }
 

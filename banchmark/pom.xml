@@ -8,7 +8,7 @@
         <version>2.7.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.example</groupId>
+    <groupId>com.futurewei</groupId>
     <artifactId>banchmark</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>banchmark</name>
@@ -45,9 +45,9 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.futurewei-cloud</groupId>
+            <groupId>com.github.DavidLiu506</groupId>
             <artifactId>alcor</artifactId>
-            <version>7fc2c248255c84b6a0fa5c505befe26a7b218072</version>
+            <version>b5a537074e46d310ab5f810012cf263d2323ccb8</version>
             <exclusions>
                 <exclusion>  <!-- declare the exclusion here -->
                     <groupId>*</groupId>

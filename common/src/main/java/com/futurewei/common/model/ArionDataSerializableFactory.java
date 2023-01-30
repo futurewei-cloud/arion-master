@@ -18,6 +18,9 @@ package com.futurewei.common.model;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 
+
+
+
 public class ArionDataSerializableFactory implements com.hazelcast.nio.serialization.DataSerializableFactory {
 
         public static final int FACTORY_ID = 1;
@@ -30,6 +33,10 @@ public class ArionDataSerializableFactory implements com.hazelcast.nio.serializa
 
         public static final int VPC_TYPE = 4;
 
+        public static final int SECURITY_GROUP_PORT_BINDING = 5;
+
+        public static final int SECURITY_GROUP_RULE = 6;
+
         @Override
         public IdentifiedDataSerializable create(int typeId) {
             if ( typeId == ROUTING_RULE_TYPE ) {
@@ -40,7 +47,11 @@ public class ArionDataSerializableFactory implements com.hazelcast.nio.serializa
                 return new ArionNode();
             } else if (typeId == VPC_TYPE) {
                 return new VPC();
-            } else {
+            } else if (typeId == SECURITY_GROUP_PORT_BINDING) {
+                return new SecurityGroupPortBinding();
+            } else if (typeId == SECURITY_GROUP_RULE) {
+                return new SecurityGroupRule();
+            }else {
                 return null;
             }
         }

@@ -38,7 +38,7 @@
         <module>arion_master</module>
         <module>common</module>
         <module>schema</module>
-        <module>test_tool</module>
+        <module>banchmark</module>
     </modules>
 
     <build>

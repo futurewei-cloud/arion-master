@@ -19,6 +19,7 @@ package com.futurewei.arionmaster.grpc;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
+import com.futurewei.alcor.schema.SecurityGroup;
 import com.futurewei.arion.schema.ArionMasterServiceGrpc;
 import com.futurewei.arion.schema.Arionmaster;
 import com.futurewei.arionmaster.service.GoalStatePersistenceService;
@@ -44,10 +45,10 @@ public class GoalStateProvisionService extends GoalStateProvisionerGrpc.GoalStat
     private GoalStatePersistenceService goalStateProcess;
 
     @Override
-    public void pushGoalstates(Goalstateprovisioner.NeighborRulesRequest request, StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
+    public void pushGoalstates(Goalstateprovisioner.ArionGoalStateRequest request, StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
         try {
             goalStateProcess.goalstateProcess(request);
-
+            System.out.println("SecurityGroupPortBinding: " + request);
             var status = Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus.newBuilder()
                     .setOperationStatus(Common.OperationStatus.SUCCESS)
                     .build();
@@ -63,6 +64,27 @@ public class GoalStateProvisionService extends GoalStateProvisionerGrpc.GoalStat
             responseObserver.onError(e);
         }
 
+    }
+
+    @Override
+    public void pushSecurityGroupGoalState(SecurityGroup.SecurityGroupState securityGroupState, StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
+        try {
+            goalStateProcess.goalstateProcess(securityGroupState);
+            System.out.println("SecurityGroupRule: " + securityGroupState);
+            var status = Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus.newBuilder()
+                    .setOperationStatus(Common.OperationStatus.SUCCESS)
+                    .build();
+            Goalstateprovisioner.GoalStateOperationReply reply = Goalstateprovisioner
+                    .GoalStateOperationReply
+                    .newBuilder()
+                    .addOperationStatuses(status)
+                    .build();
+            responseObserver.onNext(reply);
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+            responseObserver.onError(e);
+        }
     }
 }
 

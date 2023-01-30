@@ -13,17 +13,17 @@ Copyright(c) 2022 Futurewei Cloud
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package com.futurewei.arionmaster.service;
+package com.futurewei.arionmaster.data;
 
-import com.futurewei.alcor.schema.Goalstateprovisioner;
-import com.futurewei.alcor.schema.SecurityGroup;
-import com.futurewei.arion.schema.Arionmaster;
+import com.futurewei.common.model.NeighborRule;
+import com.futurewei.common.model.SecurityGroupRule;
+import org.springframework.data.repository.CrudRepository;
 
-import java.util.function.Consumer;
+import java.util.List;
 
-public interface GoalStatePersistenceService {
-    void goalstateProcess(Goalstateprovisioner.ArionGoalStateRequest arionGoalStateRequest) throws Exception;
-    void goalstateProcess(SecurityGroup.SecurityGroupState securityGroupState) throws Exception;
-    Arionmaster.NeighborRulesResponse getNeighborRules (Arionmaster.HostRequest hostRequest);
-    void getNeighborRulesResponse(Arionmaster.HostRequest hostRequest, Consumer<Arionmaster.NeighborRulesResponse> resConsumer);
+public interface SecurityGroupRuleRepository extends CrudRepository<SecurityGroupRule, String> {
+    List<SecurityGroupRule> findByRemoteGroupId(String remotegroupid);
+
+    List<SecurityGroupRule> findBySecurityGroupId(String securitygroupid);
 }
+
