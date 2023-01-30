@@ -92,11 +92,7 @@ public final class HazelcastWatcher implements Watcher {
         IMap<String, SecurityGroupRule> map = (IMap) hazelcastInstance.getMap(mapName);
         var securityGroupRuleListener = new SecurityGorupRuleListener(resConsumer);
         var securityGroupRuleCollection = getSecurityGroupRules(map, req.getGroup(), req.getRev());
-
-        System.out.println(securityGroupRuleCollection);
-        System.out.println(mapName);
-        System.out.println(req.getGroup());
-        System.out.println(req.getRev());
+        
         for (var securityGroupRule : securityGroupRuleCollection) {
             try {
                 Arionmaster.ArionWingResponse.Builder arionWingResponseBuilder = Arionmaster.ArionWingResponse.newBuilder();

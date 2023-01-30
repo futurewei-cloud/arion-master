@@ -48,7 +48,6 @@ public class GoalStateProvisionService extends GoalStateProvisionerGrpc.GoalStat
     public void pushGoalstates(Goalstateprovisioner.ArionGoalStateRequest request, StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
         try {
             goalStateProcess.goalstateProcess(request);
-            System.out.println("SecurityGroupPortBinding: " + request);
             var status = Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus.newBuilder()
                     .setOperationStatus(Common.OperationStatus.SUCCESS)
                     .build();
@@ -70,7 +69,6 @@ public class GoalStateProvisionService extends GoalStateProvisionerGrpc.GoalStat
     public void pushSecurityGroupGoalState(SecurityGroup.SecurityGroupState securityGroupState, StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
         try {
             goalStateProcess.goalstateProcess(securityGroupState);
-            System.out.println("SecurityGroupRule: " + securityGroupState);
             var status = Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus.newBuilder()
                     .setOperationStatus(Common.OperationStatus.SUCCESS)
                     .build();
