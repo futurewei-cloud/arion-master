@@ -1,10 +1,10 @@
-package com.futurewei.banchmark;
+package com.futurewei.benchmark;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class BanchmarkApplicationTests {
+class BenchmarkApplicationTests {
 
     @Test
     void contextLoads() {

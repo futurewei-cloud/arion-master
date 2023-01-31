@@ -1,4 +1,4 @@
-package com.futurewei.banchmark.service;
+package com.futurewei.benchmark.service;
 
 import com.futurewei.alcor.schema.*;
 import io.grpc.stub.StreamObserver;

@@ -13,13 +13,13 @@ Copyright(c) 2022 Futurewei Cloud
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package com.futurewei.banchmark.service;
+package com.futurewei.benchmark.service;
 
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
 import com.futurewei.alcor.schema.Neighbor;
-import com.futurewei.banchmark.utils.ThreadPoolExecutorUtils;
+import com.futurewei.benchmark.utils.ThreadPoolExecutorUtils;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.slf4j.Logger;

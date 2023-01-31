@@ -14,17 +14,17 @@ Copyright(c) 2022 Futurewei Cloud
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-package com.futurewei.banchmark;
+package com.futurewei.benchmark;
 
-import com.futurewei.banchmark.service.ArionmasterNeighborRuleTest;
-import com.futurewei.banchmark.service.ArionmasterSecurityGroupTest;
+import com.futurewei.benchmark.service.ArionmasterNeighborRuleTest;
+import com.futurewei.benchmark.service.ArionmasterSecurityGroupTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BanchmarkApplication implements CommandLineRunner {
+public class BenchmarkApplication implements CommandLineRunner {
 
 
     @Autowired
@@ -34,7 +34,7 @@ public class BanchmarkApplication implements CommandLineRunner {
     private ArionmasterSecurityGroupTest arionmasterSecurityGroupTest;
 
     public static void main(String[] args) {
-        SpringApplication.run(BanchmarkApplication.class, args);
+        SpringApplication.run(BenchmarkApplication.class, args);
     }
 
 

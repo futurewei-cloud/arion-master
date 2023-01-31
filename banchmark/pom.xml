@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.futurewei</groupId>
-    <artifactId>banchmark</artifactId>
+    <artifactId>benchmark</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>banchmark</name>
-    <description>banchmark</description>
+    <name>benchmark</name>
+    <description>benchmark</description>
     <properties>
         <java.version>17</java.version>
         <repackage.classifier/>
