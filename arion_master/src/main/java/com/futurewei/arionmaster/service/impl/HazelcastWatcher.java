@@ -92,7 +92,7 @@ public final class HazelcastWatcher implements Watcher {
         IMap<String, SecurityGroupRule> map = (IMap) hazelcastInstance.getMap(mapName);
         var securityGroupRuleListener = new SecurityGorupRuleListener(resConsumer);
         var securityGroupRuleCollection = getSecurityGroupRules(map, req.getGroup(), req.getRev());
-        
+
         for (var securityGroupRule : securityGroupRuleCollection) {
             try {
                 Arionmaster.ArionWingResponse.Builder arionWingResponseBuilder = Arionmaster.ArionWingResponse.newBuilder();
@@ -387,6 +387,7 @@ class SecurityGorupRuleListener implements EntryListener {
     public Arionmaster.SecurityGroupRule buildSecurityGroupRule(SecurityGroupRule securityGroupRule, Common.OperationType operationType) throws Exception {
         Arionmaster.SecurityGroupRule.Builder securityGroupRuleBuilder = Arionmaster.SecurityGroupRule.newBuilder();
         securityGroupRuleBuilder.setOperationType(operationType);
+        securityGroupRuleBuilder.setId(securityGroupRule.getId());
         securityGroupRuleBuilder.setSecuritygroupid(securityGroupRule.getSecurityGroupId());
         securityGroupRuleBuilder.setRemotegroupid(securityGroupRule.getRemoteGroupId());
         securityGroupRuleBuilder.setDirection(securityGroupRule.getDirection());
